@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/config/routes.config.dart';
-import 'package:inka_msa/config/style.config.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/config/routes.config.dart';
+import 'package:godeals_agen/config/style.config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

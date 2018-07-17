@@ -1,6 +1,6 @@
-import 'package:inka_msa/forms/auth/login.form.dart';
-import 'package:inka_msa/helpers/background_decoration.dart';
-import 'package:inka_msa/pages/auth/forgot_password.page.dart';
+import 'package:godeals_agen/forms/auth/login.form.dart';
+import 'package:godeals_agen/helpers/background_decoration.dart';
+import 'package:godeals_agen/pages/auth/forgot_password.page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 

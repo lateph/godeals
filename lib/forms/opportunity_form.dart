@@ -7,12 +7,13 @@ import 'package:godeals_agen/config/api.config.dart';
 import 'package:godeals_agen/helpers/block_loader.dart';
 import 'package:godeals_agen/pages/auth/verify_member.page.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-class ChangePhoneNumberForm extends BaseForm {
-  ChangePhoneNumberForm() {
+class OpportunityForm extends BaseForm {
+  OpportunityForm() {
     fields.addAll(<String, String>{
-      'phoneNumber': '',
+      'check_in': '',
+      'check_out': '',
     });
   }
 
@@ -24,23 +25,27 @@ class ChangePhoneNumberForm extends BaseForm {
 
     try {
       Response response = await appBloc.app.api.post(
-        Api.routes[ApiRoute.authChangePhoneNumber],
+        Api.routes[ApiRoute.authRegister],
         data: fields,
         options: Options(
           contentType: ContentType.JSON,
-          headers: {
-            'Authorization': appBloc.auth.deviceState.bearer,
-          }
+          headers: {'X-Device-identifier': 'random'},
         ),
       );
       print(response.data);
 
-      appBloc.auth.memberState.attributes['phoneNumber'] = fields['phoneNumber'];
-      appBloc.auth.memberState.save();
+      // save accessToken
+      var member = response.data['data'];
+      appBloc.auth.memberState.loadJson(member);
+      appBloc.auth.deviceState.loadJson(member['device']);
 
-      Navigator
-          .of(context)
-          .popUntil(ModalRoute.withName('/'));
+      appBloc.auth.memberState.save();
+      appBloc.auth.deviceState.save();
+      appBloc.auth.updateAuthStatus();
+
+      // push member verification, and dispose all route before
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          VerifyMemberPage.routeName, (Route<dynamic> route) => false);
     } on DioError catch (e) {
       // on 400 error
       if (e.response != null) {

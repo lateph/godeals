@@ -1,5 +1,5 @@
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/forms/auth/verify_device.form.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/forms/auth/verify_device.form.dart';
 import 'package:flutter/material.dart';
 
 class VerifyDevicePage extends StatefulWidget {

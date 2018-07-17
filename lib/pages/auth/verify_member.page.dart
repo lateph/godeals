@@ -1,6 +1,6 @@
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/forms/auth/verify_member.form.dart';
-import 'package:inka_msa/pages/auth/change_phone_number.page.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/forms/auth/verify_member.form.dart';
+import 'package:godeals_agen/pages/auth/change_phone_number.page.dart';
 import 'package:flutter/material.dart';
 
 class VerifyMemberPage extends StatefulWidget {

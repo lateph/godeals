@@ -1,6 +1,6 @@
-import 'package:inka_msa/bloc/app.bloc.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:inka_msa/forms/profile/change_password.dart';
+import 'package:godeals_agen/forms/profile/change_password.dart';
 
 class EditPasswordPage extends StatefulWidget {
   static const routeName = '/profile/edit-password';

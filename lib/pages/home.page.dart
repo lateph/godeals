@@ -1,7 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:inka_msa/config/style.config.dart';
-import 'package:inka_msa/bloc/app.bloc.dart';
+import 'package:godeals_agen/config/style.config.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/pages/opportunity/detail.page.dart';
+import 'package:godeals_agen/pages/opportunity/new.page.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = '/home';
@@ -11,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final AssetImage _logoImage = AssetImage('assets/images/msa.png');
   AssetImage background = AssetImage('assets/images/home.jpg');
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   bool launch = false;
@@ -100,7 +101,7 @@ class _HomePageState extends State<HomePage> {
               flexibleSpace: new FlexibleSpaceBar(
                 background: new Container(
                   margin: const EdgeInsets.only(
-                    top: 50.0,
+                    top: 70.0,
                     right: 24.0,
                     left: 24.0,
                     bottom: 10.0,
@@ -157,73 +158,48 @@ class _HomePageState extends State<HomePage> {
                         },
                         // Show a red background as the item is swiped away
                         background: Container(color: Colors.transparent),
-                        child: new InkWell(
-                          // When the child is tapped, show a snackbar
-                          onTap: () {
-//                                              appBloc.auth.deviceState.attributes['notif'][index]['status'] = true;
-//                                              appBloc.auth.deviceState.save();
-//                                              Navigator.push(context, new MaterialPageRoute<DismissDialogAction>(
-//                                                builder: (BuildContext context) => new NotifPage.edit(childs[index]['detailUrl']),
-//                                                fullscreenDialog: true,
-//                                              ));
-                          },
-                          // Our Custom Button!
-                          child: _buildCard(context, index),
-                        )
+                        child: _buildCard(context, index),
                       ),
                     childCount: childs.length,
                   )
                 );
               }
             ),
+            new SliverList(
+              delegate: SliverChildListDelegate([
+                new Padding(padding: EdgeInsets.only(top: 80.0))
+              ])
+            ),
           ]
         )
       ),
       drawer: new Drawer(
-          child: new ListView(
-            children: <Widget> [
-              new DrawerHeader(child: new Text('Header'),),
-              new ListTile(
-                title: new Text('First Menu Item'),
-                onTap: () {},
-              ),
-              new ListTile(
-                title: new Text('Second Menu Item'),
-                onTap: () {},
-              ),
-              new Divider(),
-              new ListTile(
-                title: new Text('About'),
-                onTap: () {},
-              ),
-            ],
-          )
+        child: new ListView(
+          children: <Widget> [
+            new DrawerHeader(child: new Text('Header'),),
+            new ListTile(
+              title: new Text('First Menu Item'),
+              onTap: () {},
+            ),
+            new ListTile(
+              title: new Text('Second Menu Item'),
+              onTap: () {},
+            ),
+            new Divider(),
+            new ListTile(
+              title: new Text('About'),
+              onTap: () {},
+            ),
+          ],
+        )
       ),
       floatingActionButton: new FloatingActionButton(
-          elevation: 0.0,
-          child: new Icon(Icons.check),
-          backgroundColor: new Color(0xFFE57373),
-          onPressed: (){
-            if (appBloc.auth.deviceState.attributes['notif'].runtimeType.toString() == 'List<Map<String, String>>' || appBloc.auth.deviceState.attributes['notif'].runtimeType.toString() == 'List<dynamic>'){
-              appBloc.auth.deviceState.attributes['notif'].insert(0,
-                {
-                  'title': 'asd',
-                  'messsage': 'asdasdsadsd',
-                  'tanggal': '2018-01-01'
-                });
-            }
-            else{
-              appBloc.auth.deviceState.attributes['notif'] = [
-                {
-                  'title': 'asd',
-                  'messsage': 'asdasdsadsd',
-                  'tanggal': '2018-01-01'
-                }
-              ];
-            }
-            appBloc.auth.deviceState.save();
-            appBloc.auth.updateAuthStatus();
-          }
+        elevation: 0.0,
+        child: new Icon(Icons.add),
+        backgroundColor: warnaHijau,
+        onPressed: (){
+          Navigator.of(context).pushNamed(NewOpportunityPage.routeName);
+        }
       ),
     );
   }
@@ -247,139 +223,147 @@ class _HomePageState extends State<HomePage> {
         left: 10.0,
         bottom: 0.0,
       ),
-      padding: const EdgeInsets.only(top:10.0, bottom: 10.0, left: 10.0, right: 10.0),
-      decoration: new BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(5.0)
-      ),
-      child: new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Icon(Icons.error, color: warnaOranye),
-              Padding(padding: EdgeInsets.only(left: 10.0),),
-              Text('10 New Offers',style: new TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: warnaHijau)),
-            ],
-          ),
-          new Divider(color: Colors.grey),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                height: 80.0,
-                width: 80.0,
-                decoration: BoxDecoration(
-                    border: Border.all(color: hijauMuda, width: 2.0),
-                    borderRadius: BorderRadius.circular(8.0)
+      child: Material(
+        borderRadius: BorderRadius.circular(5.0),
+        child: new InkWell(
+          onTap: () {
+            Navigator.of(context).pushNamed(DetailOpportunityPage.routeName);
+          },
+          child: new Container(
+            padding: const EdgeInsets.only(top:10.0, bottom: 10.0, left: 10.0, right: 10.0),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                new Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Icon(Icons.error, color: warnaOranye),
+                    Padding(padding: EdgeInsets.only(left: 10.0),),
+                    Text('10 New Offers',style: new TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: warnaHijau)),
+                  ],
                 ),
-                child: IconButton(icon: new Icon(Icons.timer, color: hijauMuda,size: 65.0), padding: EdgeInsets.all(0.0)),
-              ),
-              new Padding(padding: EdgeInsets.only(left: 5.0)),
-              new Expanded(
-                child: new Column(
+                new Divider(color: Colors.grey),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          child: Text('On Bidding', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
-                          decoration: BoxDecoration(
-                              color: hijauMuda,
-                              borderRadius: BorderRadius.circular(5.0)
+                    Container(
+                      height: 80.0,
+                      width: 80.0,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: hijauMuda, width: 2.0),
+                          borderRadius: BorderRadius.circular(8.0)
+                      ),
+                      child: IconButton(icon: new Icon(Icons.timer, color: hijauMuda,size: 65.0), padding: EdgeInsets.all(0.0), onPressed: () {
+
+                      }),
+                    ),
+                    new Padding(padding: EdgeInsets.only(left: 5.0)),
+                    new Expanded(
+                      child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                child: Text('On Bidding', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
+                                decoration: BoxDecoration(
+                                    color: hijauMuda,
+                                    borderRadius: BorderRadius.circular(5.0)
+                                ),
+                                padding: EdgeInsets.all(4.0),
+                              ),
+                              new Padding(padding: EdgeInsets.only(left: 5.0)),
+                              Icon(Icons.access_time, color: Colors.grey,),
+                              new Padding(padding: EdgeInsets.only(left: 5.0)),
+                              new Expanded(
+                                child: new Text('4 hrs 15 mins Remaining', style: TextStyle(color: Colors.grey),),
+                              )
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.start,
                           ),
-                          padding: EdgeInsets.all(4.0),
-                        ),
-                        new Padding(padding: EdgeInsets.only(left: 5.0)),
-                        Icon(Icons.access_time, color: Colors.grey,),
-                        new Padding(padding: EdgeInsets.only(left: 5.0)),
-                        new Expanded(
-                          child: new Text('4 hrs 15 mins Remaining', style: TextStyle(color: Colors.grey),),
-                        )
-                      ],
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
+                            children: <Widget>[
+                              Icon(Icons.location_on, color: Colors.grey),
+                              new Expanded(
+                                  child: Text('Makka, Madinah', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: textGrey))
+                              )
+                            ],
+                          ),
+                          Text('Check in / Check out date', style: TextStyle(color: Colors.grey, fontSize: 12.0),),
+                          Text('13 May 2018 / 18 May 2018', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),),
+                          Text('2 Person / Room', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),)
+                        ],
+                      ),
                     ),
-                    Row(
-                      children: <Widget>[
-                        Icon(Icons.location_on, color: Colors.grey),
-                        new Expanded(
-                            child: Text('Makka, Madinah', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: textGrey))
-                        )
-                      ],
-                    ),
-                    Text('Check in / Check out date', style: TextStyle(color: Colors.grey, fontSize: 12.0),),
-                    Text('13 May 2018 / 18 May 2018', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),),
-                    Text('2 Person / Room', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),)
                   ],
                 ),
-              ),
-            ],
-          ),
-          new Divider(color: Colors.grey),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              Icon(Icons.hotel, color: textGrey, size: 30.0,),
-              new Container(
-                width: 1.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              new Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Total', style: TextStyle(color: Colors.grey),),
-                  Text('10', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
-                ],
-              ),
-              new Container(
-                width: 1.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              new Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Confirmed', style: TextStyle(color: Colors.grey),),
-                  Text('3', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
-                ],
-              ),
-              new Container(
-                width: 1.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              new Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Waiting', style: TextStyle(color: Colors.grey),),
-                  Text('4', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
-                ],
-              ),
-              new Container(
-                width: 1.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              Text('30%', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
-            ],
+                new Divider(color: Colors.grey),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Icon(Icons.hotel, color: textGrey, size: 30.0,),
+                    new Container(
+                      width: 1.0,
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    new Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('Total', style: TextStyle(color: Colors.grey),),
+                        Text('10', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                    new Container(
+                      width: 1.0,
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    new Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('Confirmed', style: TextStyle(color: Colors.grey),),
+                        Text('3', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                    new Container(
+                      width: 1.0,
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    new Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('Waiting', style: TextStyle(color: Colors.grey),),
+                        Text('4', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                    new Container(
+                      width: 1.0,
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    Text('30%', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
+                  ],
+                )
+              ],
+            ),
           )
-        ],
+        ),
       ),
     );
   }
@@ -411,7 +395,9 @@ class _HomePageState extends State<HomePage> {
                     border: Border.all(color: warnaOranye, width: 2.0),
                     borderRadius: BorderRadius.circular(8.0)
                 ),
-                child: IconButton(icon: new Icon(Icons.timer, color: warnaOranye,size: 65.0), padding: EdgeInsets.all(0.0)),
+                child: IconButton(icon: new Icon(Icons.timer, color: warnaOranye,size: 65.0), padding: EdgeInsets.all(0.0), onPressed: () {
+
+                }),
               ),
               new Padding(padding: EdgeInsets.only(left: 5.0)),
               new Expanded(
@@ -517,7 +503,9 @@ class _HomePageState extends State<HomePage> {
                     border: Border.all(color: warnaGolden, width: 2.0),
                     borderRadius: BorderRadius.circular(8.0)
                 ),
-                child: IconButton(icon: new Icon(Icons.timer, color: warnaGolden,size: 65.0), padding: EdgeInsets.all(0.0)),
+                child: IconButton(icon: new Icon(Icons.timer, color: warnaGolden,size: 65.0), padding: EdgeInsets.all(0.0), onPressed: () {
+
+                }),
               ),
               new Padding(padding: EdgeInsets.only(left: 5.0)),
               new Expanded(

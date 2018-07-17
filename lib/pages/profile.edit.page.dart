@@ -1,7 +1,7 @@
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/forms/auth/change_phone_number.form.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/forms/auth/change_phone_number.form.dart';
 import 'package:flutter/material.dart';
-import 'package:inka_msa/forms/profile/edit_profile.dart';
+import 'package:godeals_agen/forms/profile/edit_profile.dart';
 
 class EditProfilePage extends StatefulWidget {
   static const routeName = '/profile/edit-profile';

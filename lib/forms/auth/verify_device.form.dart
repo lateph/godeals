@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:inka_msa/base/form.base.dart';
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/config/api.config.dart';
-import 'package:inka_msa/helpers/block_loader.dart';
+import 'package:godeals_agen/base/form.base.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/config/api.config.dart';
+import 'package:godeals_agen/helpers/block_loader.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 

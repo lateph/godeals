@@ -1,4 +1,4 @@
-import 'package:inka_msa/forms/auth/change_phone_number.form.dart';
+import 'package:godeals_agen/forms/auth/change_phone_number.form.dart';
 import 'package:flutter/material.dart';
 
 class ChangePhoneNumberPage extends StatefulWidget {

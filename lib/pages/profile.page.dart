@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/pages/profile.edit.page.dart';
-import 'package:inka_msa/pages/profile.password.page.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/pages/profile.edit.page.dart';
+import 'package:godeals_agen/pages/profile.password.page.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = '/profile';

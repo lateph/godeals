@@ -12,3 +12,11 @@ final ThemeData aksaraPayDefaultTheme = ThemeData(
   primaryColor: warnaHijau,
   fontFamily: 'Proxima',
 );
+
+const myIcons = <String, IconData> {
+  'wifi': Icons.wifi,
+  'free_breakfast': Icons.free_breakfast,
+  'tv': Icons.tv,
+  'pool': Icons.pool,
+  'restaurant': Icons.restaurant,
+};

@@ -7,7 +7,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/rendering.dart';
-import 'package:inka_msa/helpers/data_table.dart';
+import 'package:godeals_agen/helpers/data_table.dart';
 
 /// A material design data table that shows data using multiple pages.
 ///

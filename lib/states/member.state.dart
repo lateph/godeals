@@ -1,4 +1,4 @@
-import 'package:inka_msa/base/state.base.dart';
+import 'package:godeals_agen/base/state.base.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MemberState extends BaseState {

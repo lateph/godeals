@@ -1,8 +1,8 @@
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/forms/auth/register.form.dart';
-import 'package:inka_msa/helpers/background_decoration.dart';
-import 'package:inka_msa/pages/auth/login.page.dart';
-import 'package:inka_msa/pages/static/terms_condition.page.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/forms/auth/register.form.dart';
+import 'package:godeals_agen/helpers/background_decoration.dart';
+import 'package:godeals_agen/pages/auth/login.page.dart';
+import 'package:godeals_agen/pages/static/terms_condition.page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 

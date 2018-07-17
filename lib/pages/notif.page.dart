@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:inka_msa/bloc/app.bloc.dart';
-import 'package:inka_msa/pages/profile.edit.page.dart';
-import 'package:inka_msa/pages/profile.password.page.dart';
-import 'package:inka_msa/helpers/block_loader.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/pages/profile.edit.page.dart';
+import 'package:godeals_agen/pages/profile.password.page.dart';
+import 'package:godeals_agen/helpers/block_loader.dart';
 
 import 'package:dio/dio.dart';
 

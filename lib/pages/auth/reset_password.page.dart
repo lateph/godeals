@@ -1,4 +1,4 @@
-import 'package:inka_msa/forms/auth/reset_password.form.dart';
+import 'package:godeals_agen/forms/auth/reset_password.form.dart';
 import 'package:flutter/material.dart';
 
 class ResetPasswordPage extends StatefulWidget {

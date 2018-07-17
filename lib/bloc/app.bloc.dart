@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:inka_msa/app.local.dart';
-import 'package:inka_msa/bloc/auth.bloc.dart';
-import 'package:inka_msa/states/device.state.dart';
-import 'package:inka_msa/states/member.state.dart';
+import 'package:godeals_agen/app.local.dart';
+import 'package:godeals_agen/bloc/auth.bloc.dart';
+import 'package:godeals_agen/states/device.state.dart';
+import 'package:godeals_agen/states/member.state.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';

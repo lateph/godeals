@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:godeals_agen/config/api.config.dart';
 import 'package:godeals_agen/config/style.config.dart';
 import 'package:godeals_agen/bloc/app.bloc.dart';
 import 'package:godeals_agen/pages/opportunity/detail.page.dart';
@@ -16,6 +21,10 @@ class _HomePageState extends State<HomePage> {
   AssetImage background = AssetImage('assets/images/home.jpg');
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   bool launch = false;
+  List<dynamic> childs = [];
+  String nextUrl = '';
+  ScrollController controller;
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
 
   void simpanMessage (AppBloc appBloc, message) {
     print('type data');
@@ -49,6 +58,16 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+//    fetchDataHome(context, "").then(() => {
+//      setState((){
+//
+//      });
+//    });
+    fetchDataHome(context, '').then((value){
+      setState(() {
+
+      });
+    });
   }
 
   @override
@@ -89,7 +108,8 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: Colors.blueGrey[50]
         ),
-        child: new CustomScrollView(
+        child: RefreshIndicator(child:
+          new CustomScrollView(
           scrollDirection: Axis.vertical,
           slivers: <Widget>[
             new SliverAppBar(
@@ -140,26 +160,11 @@ class _HomePageState extends State<HomePage> {
             StreamBuilder(
               stream: appBloc.auth.status,
               builder: (context, snapshot) {
-                List<dynamic> childs = [1,2,3];
                 return
                   SliverList(
                     delegate: new SliverChildBuilderDelegate(
                       (context, index) =>
-                      Dismissible(
-                        // Each Dismissible must contain a Key. Keys allow Flutter to
-                        // uniquely identify Widgets.
-                        key: new ObjectKey(childs[index]),
-                        // We also need to provide a function that will tell our app
-                        // what to do after an item has been swiped away.
-                        onDismissed: (direction) {
-                          appBloc.auth.deviceState.attributes['notif'].removeAt(index);
-                          appBloc.auth.deviceState.save();
-                          appBloc.auth.updateAuthStatus();
-                        },
-                        // Show a red background as the item is swiped away
-                        background: Container(color: Colors.transparent),
-                        child: _buildCard(context, index),
-                      ),
+                          _buildCard(context, index),
                     childCount: childs.length,
                   )
                 );
@@ -172,6 +177,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ]
         )
+        , onRefresh: refreshList, key: refreshKey,)
       ),
       drawer: new Drawer(
         child: new ListView(
@@ -193,13 +199,20 @@ class _HomePageState extends State<HomePage> {
           ],
         )
       ),
-      floatingActionButton: new FloatingActionButton(
-        elevation: 0.0,
-        child: new Icon(Icons.add),
-        backgroundColor: warnaHijau,
-        onPressed: (){
-          Navigator.of(context).pushNamed(NewOpportunityPage.routeName);
-        }
+      floatingActionButton: Builder(
+        builder: (context) => new FloatingActionButton(
+          elevation: 0.0,
+          child: new Icon(Icons.add),
+          backgroundColor: warnaHijau,
+          onPressed:  () async  {
+            final value = await Navigator.of(context).pushNamed(NewOpportunityPage.routeName);
+            if(value.toString() == 'true'){
+              Scaffold.of(context).showSnackBar(new SnackBar(
+                content: new Text("Opportunity has been saved"),
+              ));
+            }
+          }
+        )
       ),
     );
   }
@@ -615,6 +628,47 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+  void _scrollListener() {
+    if (controller.position.extentAfter < 500) {
+      fetchDataHome(context, '').then((value){
+        setState(() {
+
+        });
+      });
+    }
+  }
+
+  Future fetchDataHome(BuildContext context, String url) async {
+    final AppBloc appBloc = AppBlocProvider.of(context);
+    print(appBloc.auth.deviceState.accessToken);
+    try {
+      Response response = await appBloc.app.api.get(
+        url == '' ? Api.routes[ApiRoute.opportuniryList] : url,
+//        data: fields,
+        options: Options(
+          contentType: ContentType.JSON,
+          headers: {
+            'Authorization': appBloc.auth.deviceState.bearer,
+          },
+        ),
+      );
+      childs.addAll(response.data['data']);
+      nextUrl = response.data['meta']['links']['next'];
+    } on DioError catch (e) {
+      // on 400 error
+      print(e.response);
+      Exception('Failed to load data');
+    }
+  }
+
+  Future<Null> refreshList() async {
+    refreshKey.currentState?.show(atTop: false);
+    await fetchDataHome(context, '');
+    setState(() {
+    });
+
+    return null;
   }
 }
 

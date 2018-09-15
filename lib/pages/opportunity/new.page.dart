@@ -4,12 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:godeals_agen/config/style.config.dart';
 import 'package:intl/intl.dart';
 import 'package:godeals_agen/forms/opportunity_form.dart';
+import 'package:map_view/figure_joint_type.dart';
+import 'package:map_view/map_view.dart';
+import 'package:map_view/polygon.dart';
+
+const API_KEY = "AIzaSyAJTfjIwyfcQhfYtxbVoNkKipNQPznVELo";
 
 class NewOpportunityPage extends StatefulWidget {
   static const String routeName = '/new-opportunity';
 
   @override
   NewOpportunityState createState() {
+    MapView.setApiKey(API_KEY);
 //    if (weighEntryToEdit != null) {
 //      return new WeightEntryDialogState(weighEntryToEdit.dateTime,
 //          weighEntryToEdit.weight, weighEntryToEdit.note);
@@ -22,9 +28,27 @@ class NewOpportunityPage extends StatefulWidget {
 }
 
 class NewOpportunityState extends State<NewOpportunityPage> {
+  MapView mapView = new MapView();
+  Uri staticMapUri;
+  CameraPosition cameraPosition;
+  var compositeSubscription = new CompositeSubscription();
+
+  List<dynamic> areas = [];
+
   final OpportunityForm _opportunityForm = OpportunityForm();
   List<dynamic> sevices = ['wifi'];
   List<dynamic> sevicesPilihan = ['wifi', 'free_breakfast', 'tv', 'pool', 'restaurant'];
+  List<dynamic> areasPilihan = [];
+
+
+  @override
+  initState() {
+    super.initState();
+    cameraPosition = new CameraPosition(Locations.portland, 2.0);
+    _opportunityForm.fetchDataList(context).then((value) {
+      areas = value;
+    });
+  }
 
   @override
   void dispose() {
@@ -37,22 +61,24 @@ class NewOpportunityState extends State<NewOpportunityPage> {
     return Scaffold(
       backgroundColor: Colors.blueGrey[50],
       appBar: _createAppBar(context),
-      body: SingleChildScrollView(
-        child: new Container(
-//          constraints: BoxConstraints(
-//            minHeight: MediaQuery.of(context).size.height,
-//          ),
-          child: new SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                _buildRegisterForm(context),
-                _buildRegisterButton(context),
-              ],
+      body: Builder(
+        builder: (context) => SingleChildScrollView(
+          child: new Container(
+  //          constraints: BoxConstraints(
+  //            minHeight: MediaQuery.of(context).size.height,
+  //          ),
+            child: new SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  _buildRegisterForm(context),
+                  _buildRegisterButton(context),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        )
+      )
     );
   }
 
@@ -76,36 +102,47 @@ class NewOpportunityState extends State<NewOpportunityPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(height: 15.0),
-                new Flex(
-                  direction: Axis.horizontal,
+                new Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     new Flexible(
-                        child: new _DateTimePicker(
-                          labelText: 'CHECK-IN',
-                          selectedDate: new DateTime.now(),//_opportunityForm.fields['name'],
-                          selectDate: (DateTime date) {
-                            setState(() {
-//                      _opportunityForm.fields['name'] = val;
-                            });
-                          },
-                        ),
+                      child: new Column(
+                        children: <Widget>[
+                          new _DateTimePicker(
+                            labelText: 'CHECK-IN',
+                            selectedDate: _opportunityForm.fields['checkInDate'],
+                            selectDate: (DateTime date) {
+                              setState(() {
+                                _opportunityForm.fields['checkInDate'] = date;
+                              });
+                            },
+                          ),
+                          _buildErrorText(snapshot, 'checkInDate')
+                        ]
+                      )
                     ),
                     new Container(width: 8.0,),
                     new Flexible(
-                      child: new _DateTimePicker(
-                        labelText: 'CHECK-OUT',
-                        selectedDate: new DateTime.now(),//_opportunityForm.fields['name'],
-                        selectDate: (DateTime date) {
-                          setState(() {
-//                      _opportunityForm.fields['name'] = val;
-                          });
-                        },
-                      ),
+                      child: new Column(
+                        children: <Widget>[
+                          new _DateTimePicker(
+                            labelText: 'CHECK-OUT',
+                            selectedDate: _opportunityForm.fields['checkOutDate'],
+                            selectDate: (DateTime date) {
+                              setState(() {
+                                _opportunityForm.fields['checkOutDate'] = date;
+                              });
+                            },
+                          ),
+                          _buildErrorText(snapshot, 'checkOutDate')
+                        ]
+                      )
                     )
                   ],
                 ),
                 Container(height: 15.0),
                 new Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     new Flexible(
                       child: new Column(
@@ -123,13 +160,11 @@ class NewOpportunityState extends State<NewOpportunityPage> {
                                  decoration: InputDecoration(
                                    border: InputBorder.none,
                                    isDense: true,
-                                   errorText: snapshot.hasData
-                                       ? snapshot.data['phoneNumber']?.join(', ')
-                                       : null,
                                  ),
-                                 onSaved: (val) => _opportunityForm.fields['phoneNumber'] = val,
+                                 onSaved: (val) => _opportunityForm.fields['roomNeeded'] = val,
                                )
-                           )
+                           ),
+                           _buildErrorText(snapshot, 'roomNeeded')
                          ],
                         crossAxisAlignment: CrossAxisAlignment.start,
                       ),
@@ -150,79 +185,75 @@ class NewOpportunityState extends State<NewOpportunityPage> {
                                 keyboardType: TextInputType.phone,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
-                                  isDense: true,
-                                  errorText: snapshot.hasData
-                                      ? snapshot.data['phoneNumber']?.join(', ')
-                                      : null,
+                                  isDense: true
                                 ),
-                                onSaved: (val) => _opportunityForm.fields['phoneNumber'] = val,
+                                onSaved: (val) => _opportunityForm.fields['personPerRoom'] = val,
                               )
-                          )
+                          ),
+                          _buildErrorText(snapshot, 'personPerRoom')
                         ],
                         crossAxisAlignment: CrossAxisAlignment.start,
                       ),
                     ),
                   ],
                 ),
-                Container(height: 15.0),
-                new Text('City, Destination, Or Hotel Name'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
-                new Container(height: 8.0,),
-                new Container(
-                    padding: EdgeInsets.only(left: 15.0, right: 35.0, top: 5.0, bottom: 5.0),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        color: Colors.white
-                    ),
-                    child: TextFormField(
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        isDense: true,
-                        errorText: snapshot.hasData
-                            ? snapshot.data['phoneNumber']?.join(', ')
-                            : null,
-                      ),
-                      onSaved: (val) => _opportunityForm.fields['phoneNumber'] = val,
-                    )
-                ),
-                Container(height: 15.0),
-                new Text('Select Services'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
-                Container(height: 8.0),
-                sevices.length == 0 ? new Container(
-                  height: 100.0,
-                  child: new Center(
-                    child: new Text('No Services Selected'),
-                  ),
-                ) : new GridView.count(
-                    primary: false,
-                    shrinkWrap: true,
-                    crossAxisCount: 4,
-                    childAspectRatio: 1.5,
-                    padding: const EdgeInsets.all(4.0),
-                    mainAxisSpacing: 4.0,
-                    crossAxisSpacing: 4.0,
-                    children: sevices.map((dynamic url) {
-                      return new GridTile(
-                          child: new Column(
-                            children: <Widget>[
-                              new Icon(myIcons[url], color: textGrey,),
-                              new Text(url, style: TextStyle(color: textGrey),),
-                            ],
-                          ));
-                    }).toList()),
-                new FlatButton(
-                  onPressed: () {
-                    _editEntry(context);
-                  },
-                  padding: EdgeInsets.all(10.0),
-                  child: Row( // Replace with a Row for horizontal icon + text
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text("Add or Edxit Services", style: TextStyle(color: warnaHijau,fontWeight: FontWeight.w600, fontSize: 16.0)),
-                      Icon(Icons.chevron_right, color: warnaHijau,),
-                    ],
-                  ),
-                ),
+//                Container(height: 15.0),
+//                new Text('City, Destination, Or Hotel Name'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
+//                new Container(height: 8.0,),
+//                new Container(
+//                    padding: EdgeInsets.only(left: 15.0, right: 35.0, top: 5.0, bottom: 5.0),
+//                    decoration: BoxDecoration(
+//                        borderRadius: BorderRadius.circular(5.0),
+//                        color: Colors.white
+//                    ),
+//                    child: TextFormField(
+//                      keyboardType: TextInputType.phone,
+//                      decoration: InputDecoration(
+//                        border: InputBorder.none,
+//                        isDense: true
+//                      ),
+//                      onSaved: (val) => _opportunityForm.fields['phoneNumber'] = val,
+//                    ),
+//                ),
+//                _buildErrorText(snapshot, 'phoneNumber'),
+//                Container(height: 15.0),
+//                new Text('Select Services'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
+//                Container(height: 8.0),
+//                sevices.length == 0 ? new Container(
+//                  height: 100.0,
+//                  child: new Center(
+//                    child: new Text('No Services Selected'),
+//                  ),
+//                ) : new GridView.count(
+//                    primary: false,
+//                    shrinkWrap: true,
+//                    crossAxisCount: 4,
+//                    childAspectRatio: 1.5,
+//                    padding: const EdgeInsets.all(4.0),
+//                    mainAxisSpacing: 4.0,
+//                    crossAxisSpacing: 4.0,
+//                    children: sevices.map((dynamic url) {
+//                      return new GridTile(
+//                          child: new Column(
+//                            children: <Widget>[
+//                              new Icon(myIcons[url], color: textGrey,),
+//                              new Text(url, style: TextStyle(color: textGrey),),
+//                            ],
+//                          ));
+//                    }).toList()),
+//                new FlatButton(
+//                  onPressed: () {
+//                    _editEntry(context);
+//                  },
+//                  padding: EdgeInsets.all(10.0),
+//                  child: Row( // Replace with a Row for horizontal icon + text
+//                    mainAxisAlignment: MainAxisAlignment.end,
+//                    children: <Widget>[
+//                      Text("Add or Edit Services", style: TextStyle(color: warnaHijau,fontWeight: FontWeight.w600, fontSize: 16.0)),
+//                      Icon(Icons.chevron_right, color: warnaHijau,),
+//                    ],
+//                  ),
+//                ),
                 Container(height: 15.0),
                 new Text('NOTES'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
                 Container(height: 8.0),
@@ -237,13 +268,40 @@ class NewOpportunityState extends State<NewOpportunityPage> {
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        isDense: true,
-                        errorText: snapshot.hasData
-                            ? snapshot.data['phoneNumber']?.join(', ')
-                            : null,
+                        isDense: true
                       ),
-                      onSaved: (val) => _opportunityForm.fields['phoneNumber'] = val,
+                      onSaved: (val) => _opportunityForm.fields['notes'] = val,
                     )
+                ),
+                _buildErrorText(snapshot, 'notes'),
+                Container(height: 15.0),
+                new Text('Area'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
+                Container(height: 8.0),
+                new InkWell(
+                  child: new Center(
+                    child: new Container(
+                      margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                      child: _opportunityForm.fields['areaIds'].length == 0 ? new Text('No Area Selected') : new Text(_opportunityForm.fields['areaIds'].map((dynamic id) {
+                        var index = areas.indexWhere((dynamic i){
+                          return i['id'].toString() == id.toString();
+                        });
+                        return areas[index]['name'].toString();
+                      }).toList().join(', ')),
+                    )
+                  ),
+                  onTap: showMap,
+                ),
+                _buildErrorText(snapshot, 'areaIds'),
+                new FlatButton(
+                  onPressed: showMap,
+                  padding: EdgeInsets.all(10.0),
+                  child: Row( // Replace with a Row for horizontal icon + text
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text("Add or Edit Area", style: TextStyle(color: warnaHijau,fontWeight: FontWeight.w600, fontSize: 16.0)),
+                      Icon(Icons.chevron_right, color: warnaHijau,),
+                    ],
+                  ),
                 ),
               ],
             );
@@ -309,6 +367,97 @@ class NewOpportunityState extends State<NewOpportunityPage> {
 //        resend(context);
       }
     });
+  }
+
+  drawPoly() {
+    print(areas);
+    mapView.setPolygons(
+      areas.map((dynamic item) {
+        List <dynamic>locations = item['pointCoordinates'];
+        return new Polygon(
+            item['id'].toString(),
+            locations.map((dynamic i){
+              return new Location(i['latitude'], i['longitude']);
+            }).toList(),
+            jointType: FigureJointType.bevel,
+            strokeColor: _opportunityForm.fields['areaIds'].indexOf(item['id'].toString()) == -1 ? Colors.red : Colors.blue,
+            strokeWidth: 5.0,
+            fillColor: _opportunityForm.fields['areaIds'].indexOf(item['id'].toString()) == -1 ? Color.fromARGB(75, 255, 0, 0) : Color.fromARGB(75, 0, 0, 255)
+        );
+      }).toList()
+    );
+  }
+
+  showMap() {
+    print('taek');
+    mapView.show(
+        new MapOptions(
+            mapViewType: MapViewType.normal,
+            showUserLocation: true,
+            showMyLocationButton: true,
+            showCompassButton: true,
+            initialCameraPosition: new CameraPosition(
+                new Location(21.4153424, 39.8197534), 7.0),
+            hideToolbar: false,
+            title: "Recently Visited"),
+        toolbarActions: [new ToolbarAction("Close", 1)]);
+    StreamSubscription sub = mapView.onMapReady.listen((_) {
+//      mapView.setMarkers(_markers);
+//      mapView.setPolylines(_lines);
+      drawPoly();
+    });
+    compositeSubscription.add(sub);
+    sub = mapView.onTouchPolygon
+        .listen((polygon) {
+      print("Info Window Tapped for ${polygon.id}");
+      if(_opportunityForm.fields['areaIds'].indexOf(polygon.id.toString()) == -1){
+        _opportunityForm.fields['areaIds'].add(polygon.id.toString());
+      }
+      else {
+        _opportunityForm.fields['areaIds'].remove(polygon.id.toString());
+      }
+      drawPoly();
+    });
+    compositeSubscription.add(sub);
+    sub = mapView.onToolbarAction.listen((id) {
+      print("Toolbar button id = $id");
+      if (id == 1) {
+        _handleDismiss();
+      }
+    });
+    compositeSubscription.add(sub);
+  }
+
+  _handleDismiss() async {
+    double zoomLevel = await mapView.zoomLevel;
+    Location centerLocation = await mapView.centerLocation;
+    List<Marker> visibleAnnotations = await mapView.visibleAnnotations;
+//    List<Polyline> visibleLines = await mapView.visiblePolyLines;
+    List<Polygon> visiblePolygons = await mapView.visiblePolygons;
+    print("Zoom Level: $zoomLevel");
+    print("Center: $centerLocation");
+    print("Visible Annotation Count: ${visibleAnnotations.length}");
+//    print("Visible Polylines Count: ${visibleLines.length}");
+    print("Visible Polygons Count: ${visiblePolygons.length}");
+    setState(() {
+
+    });
+    mapView.dismiss();
+    compositeSubscription.cancel();
+  }
+
+  Widget _buildErrorText(AsyncSnapshot snapshot, String f) {
+    if(snapshot.hasData && snapshot.data[f].runtimeType.toString() != 'Null'){
+      print('jancok');
+      print(snapshot.data[f].runtimeType.toString());
+      return new Container(
+        margin: EdgeInsets.only(top: 5.0),
+        child: new Text(snapshot.data[f].join(', '), style: new TextStyle(color: Colors.red[600], fontSize: 12.0)),
+      );
+    }
+    else{
+      return Container();
+    }
   }
 }
 
@@ -507,4 +656,35 @@ class SelectServiceDialogState extends State<SelectServiceDialog> {
     );
   }
 
+}
+
+class CompositeSubscription {
+  Set<StreamSubscription> _subscriptions = new Set();
+
+  void cancel() {
+    for (var n in this._subscriptions) {
+      n.cancel();
+    }
+    this._subscriptions = new Set();
+  }
+
+  void add(StreamSubscription subscription) {
+    this._subscriptions.add(subscription);
+  }
+
+  void addAll(Iterable<StreamSubscription> subs) {
+    _subscriptions.addAll(subs);
+  }
+
+  bool remove(StreamSubscription subscription) {
+    return this._subscriptions.remove(subscription);
+  }
+
+  bool contains(StreamSubscription subscription) {
+    return this._subscriptions.contains(subscription);
+  }
+
+  List<StreamSubscription> toList() {
+    return this._subscriptions.toList();
+  }
 }

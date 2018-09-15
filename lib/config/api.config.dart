@@ -15,7 +15,10 @@ enum ApiRoute {
   schedule,
   scheduleFirst,
   componentStock,
-  locations
+  locations,
+  areas,
+  newOpportunity,
+  opportuniryList
 }
 
 class Api {
@@ -37,5 +40,9 @@ class Api {
     ApiRoute.scheduleFirst: '/report/scheduled-train-set',
     ApiRoute.componentStock: '/report/component-stock',
     ApiRoute.locations: '/master/location?page=all',
+    ApiRoute.areas: '/list/area',
+    ApiRoute.newOpportunity: '/opportunity/create',
+    ApiRoute.opportuniryList: '/opportunity/list'
+
   };
 }

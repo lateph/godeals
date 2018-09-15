@@ -12,6 +12,7 @@ dependencies:
   sticky_headers:
   firebase_messaging:
   device_info:
+  map_view:
 
 dev_dependencies:
   flutter_test:

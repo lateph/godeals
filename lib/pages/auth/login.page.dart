@@ -21,8 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _loginForm.fields['username'] = 'superUser';
-    _loginForm.fields['password'] = 'p4ssw0rd123##';
+    _loginForm.fields['username'] = 'agent01';
+    _loginForm.fields['password'] = 'agent01';
 
     _firebaseMessaging.requestNotificationPermissions();
     _firebaseMessaging.configure(
@@ -85,7 +85,8 @@ class _LoginPageState extends State<LoginPage> {
                 new Text('First Wholesale Hotel Booking app', style: textTheme.title.copyWith(fontWeight: FontWeight.normal, color: Colors.white, height: 2.0), textAlign: TextAlign.center),
                 new Padding(padding: EdgeInsets.only(top: 20.0)),
                 _buildLoginForm(context),
-                _buildLoginButton(context)
+                _buildLoginButton(context),
+                _buildChangeLanguageButton(context)
 //                _buildForgotPasswordButton(context),
               ],
             ),
@@ -137,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               TextFormField(
                                 style: TextStyle(fontSize: 14.0, color: Colors.black54),
-                                initialValue: "superUser",
+                                initialValue: "agent01",
                                 decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.only(left: 20.0, top: 20.0, right: 12.0, bottom: 20.0),
                                   border:  InputBorder.none,
@@ -170,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                               TextFormField(
                                 style: TextStyle(fontSize: 14.0, color: Colors.black54),
                                 obscureText: true,
-                                initialValue: "p4ssw0rd123##",
+                                initialValue: "agent01",
                                 decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.only(left: 20.0, top: 20.0, right: 12.0, bottom: 20.0),
                                   border: InputBorder.none,
@@ -205,12 +206,42 @@ class _LoginPageState extends State<LoginPage> {
       padding: const EdgeInsets.only(
         left: 16.0,
         right: 16.0,
-        bottom: 24.0,
+        bottom: 10.0,
         top: 0.0,
       ),
       child: RaisedButton(
         padding: EdgeInsets.all(15.0),
         child: Text('LOG IN' , style: new TextStyle(color: Colors.green, fontWeight: FontWeight.w700, fontSize: 14.0)),
+        color: Colors.white,
+        textTheme: ButtonTextTheme.primary,
+        elevation: 4.0,
+        onPressed: () async {
+          // save form
+          _loginForm.key.currentState.save();
+
+          // validate then submit
+          if (_loginForm.key.currentState.validate()) {
+            await _loginForm.submit(context);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildChangeLanguageButton(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+      ),
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        bottom: 24.0,
+        top: 0.0,
+      ),
+      child: RaisedButton(
+        padding: EdgeInsets.all(15.0),
+        child: Text('Arabic' , style: new TextStyle(color: Colors.green, fontWeight: FontWeight.w700, fontSize: 14.0)),
         color: Colors.white,
         textTheme: ButtonTextTheme.primary,
         elevation: 4.0,

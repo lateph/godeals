@@ -21,5 +21,5 @@ class DeviceState extends BaseState {
 
   get notif => attributes['notif'];
 
-  String get bearer => 'Bearer ' + accessToken;
+  String get bearer => 'Bearer ' + accessToken.toString();
 }

@@ -42,7 +42,7 @@ class Api {
     ApiRoute.locations: '/master/location?page=all',
     ApiRoute.areas: '/list/area',
     ApiRoute.newOpportunity: '/opportunity/create',
-    ApiRoute.opportuniryList: '/opportunity/list'
+    ApiRoute.opportuniryList: '/opportunity/list?per-page=5'
 
   };
 }

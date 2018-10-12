@@ -9,12 +9,19 @@ import 'package:godeals_agen/config/style.config.dart';
 import 'package:godeals_agen/bloc/app.bloc.dart';
 import 'package:godeals_agen/pages/opportunity/detail.page.dart';
 import 'package:godeals_agen/pages/opportunity/new.page.dart';
-
+import 'package:intl/intl.dart' hide TextDirection;
+import 'package:timeago/timeago.dart' as timeago;
 class HomePage extends StatefulWidget {
   static const String routeName = '/home';
 
   @override
   _HomePageState createState() => new _HomePageState();
+}
+
+class DashboardAPINotifier extends ChangeNotifier {
+  bool _isLoading = false;
+  get getIsLoading => _isLoading;
+  set setLoading(bool isLoading) => _isLoading = isLoading;
 }
 
 class _HomePageState extends State<HomePage> {
@@ -25,6 +32,9 @@ class _HomePageState extends State<HomePage> {
   String nextUrl = '';
   ScrollController controller;
   var refreshKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  DashboardAPINotifier _dashboardAPINotifier;
 
   void simpanMessage (AppBloc appBloc, message) {
     print('type data');
@@ -63,11 +73,30 @@ class _HomePageState extends State<HomePage> {
 //
 //      });
 //    });
-    fetchDataHome(context, '').then((value){
-      setState(() {
+    _dashboardAPINotifier = DashboardAPINotifier();
 
-      });
+    _dashboardAPINotifier.addListener(() {
+      if (_dashboardAPINotifier.getIsLoading) {
+        print("loading is true");
+        fetchDataHome(context, nextUrl).then((value){
+        }); //Hit API
+      } else {
+        print("loading is false");
+      }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchDataHome(context, '').then((value){
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _dashboardAPINotifier.dispose();
   }
 
   @override
@@ -104,6 +133,7 @@ class _HomePageState extends State<HomePage> {
       },
     );
     return Scaffold(
+      key: scaffoldKey,
       body: Container(
         decoration: BoxDecoration(
           color: Colors.blueGrey[50]
@@ -163,8 +193,13 @@ class _HomePageState extends State<HomePage> {
                 return
                   SliverList(
                     delegate: new SliverChildBuilderDelegate(
-                      (context, index) =>
-                          _buildCard(context, index),
+                      (context, index) {
+                      if (index == childs.length - 1 && nextUrl != null) {
+                        return _reachedEnd();
+                      } else {
+                        return _buildCard(context, index);
+                      }
+                    },
                     childCount: childs.length,
                   )
                 );
@@ -218,17 +253,44 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCard(BuildContext context, index) {
-    if (index == 0){
-      return _buildOnBidding(context);
-    }
-    else if(index == 1){
-      return _buildCanceledOnBidding(context);
+    if(childs[index]['status'] == 'active'){
+      return _buildOnBidding(context, index);
     }
     else{
-      return _buildComplete(context);
+      return _buildCanceledOnBidding(context);
     }
+//    if (index == 0){
+//      return _buildOnBidding(context);
+//    }
+//    else if(index == 1){
+//      return _buildCanceledOnBidding(context);
+//    }
+//    else{
+//      return _buildComplete(context);
+//    }
   }
-  Widget _buildOnBidding(BuildContext context) {
+  Widget _buildOnBidding(BuildContext context, int index) {
+    var value = childs[index];
+    Map<String, dynamic> lokasi = new Map<String, dynamic>.from(value['areaNames']);
+
+    if(value['offerByStatus'].toString() == '[]'){
+      value['offerByStatus'] = {};
+    }
+    Map<String, int> accepted = new Map<String, int>.from(value['offerByStatus']['accepted'] != null ? value['offerByStatus']['accepted'] : {});
+    int totalWaiting = 0;
+    accepted.values.toList().forEach((num e){totalWaiting += e;});
+
+    Map<String, int> confirmed = new Map<String, int>.from(value['offerByStatus']['confirmed'] != null ? value['offerByStatus']['confirmed'] : {});
+    int totalConfirmed = 0;
+    confirmed.values.toList().forEach((num e){totalConfirmed += e;});
+
+    Map<String, int> news = new Map<String, int>.from(value['offerByStatus']['new'] != null ? value['offerByStatus']['new'] : {});
+    int totalNew = news.values.toList().length;
+
+//    news.values.toList().forEach((num e){totalNew += e;});
+    String textAgo = timeago.format(DateTime.parse(value['checkInDate']), allowFromNow: true, locale: 'en');
+    print(textAgo);
+//    accepted.values.reduce((a, b) => a +) b
     return Container(
       margin: const EdgeInsets.only(
         top: 10.0,
@@ -240,7 +302,13 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(5.0),
         child: new InkWell(
           onTap: () {
-            Navigator.of(context).pushNamed(DetailOpportunityPage.routeName);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailOpportunityPage(todo: value),
+              ),
+            );
+//            Navigator.of(context).pushNamed(DetailOpportunityPage.routeName);
           },
           child: new Container(
             padding: const EdgeInsets.only(top:10.0, bottom: 10.0, left: 10.0, right: 10.0),
@@ -248,16 +316,16 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                new Row(
+                totalNew == 0 ? new Container() :  new Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Icon(Icons.error, color: warnaOranye),
                     Padding(padding: EdgeInsets.only(left: 10.0),),
-                    Text('10 New Offers',style: new TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: warnaHijau)),
+                    Text(totalNew.toString() + ' New Offers',style: new TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: warnaHijau)),
                   ],
                 ),
-                new Divider(color: Colors.grey),
-                Row(
+                totalNew == 0 ? new Container() : new Divider(color: Colors.grey),
+                new Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -292,7 +360,7 @@ class _HomePageState extends State<HomePage> {
                               Icon(Icons.access_time, color: Colors.grey,),
                               new Padding(padding: EdgeInsets.only(left: 5.0)),
                               new Expanded(
-                                child: new Text('4 hrs 15 mins Remaining', style: TextStyle(color: Colors.grey),),
+                                child: new Text(textAgo, style: TextStyle(color: Colors.grey),textDirection: TextDirection.ltr),
                               )
                             ],
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,20 +369,20 @@ class _HomePageState extends State<HomePage> {
                             children: <Widget>[
                               Icon(Icons.location_on, color: Colors.grey),
                               new Expanded(
-                                  child: Text('Makka, Madinah', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: textGrey))
+                                  child: Text(lokasi.values.toList().join(', '), style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: textGrey))
                               )
                             ],
                           ),
                           Text('Check in / Check out date', style: TextStyle(color: Colors.grey, fontSize: 12.0),),
-                          Text('13 May 2018 / 18 May 2018', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),),
-                          Text('2 Person / Room', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),)
+                          Text(new DateFormat('y MMMM dd').format(DateTime.parse(value['checkInDate'])) + ' / ' + new DateFormat('y MMMM dd').format(DateTime.parse(value['checkOutDate'])), style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),),
+                          Text(value['personPerRoom'].toString() + ' Person / Room ', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),)
                         ],
                       ),
                     ),
                   ],
                 ),
                 new Divider(color: Colors.grey),
-                Row(
+                new Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Icon(Icons.hotel, color: textGrey, size: 30.0,),
@@ -330,7 +398,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text('Total', style: TextStyle(color: Colors.grey),),
-                        Text('10', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                        Text(value['roomNeeded'].toString(), style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
                       ],
                     ),
                     new Container(
@@ -345,7 +413,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text('Confirmed', style: TextStyle(color: Colors.grey),),
-                        Text('3', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                        Text(totalConfirmed.toString() , style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
                       ],
                     ),
                     new Container(
@@ -360,7 +428,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text('Waiting', style: TextStyle(color: Colors.grey),),
-                        Text('4', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                        Text(totalWaiting.toString() , style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
                       ],
                     ),
                     new Container(
@@ -370,7 +438,7 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.grey
                       ),
                     ),
-                    Text('30%', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
+                    Text((totalConfirmed / value['roomNeeded'] * 100).round().toString() + '%', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
                   ],
                 )
               ],
@@ -629,15 +697,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-  void _scrollListener() {
-    if (controller.position.extentAfter < 500) {
-      fetchDataHome(context, '').then((value){
-        setState(() {
-
-        });
-      });
-    }
-  }
 
   Future fetchDataHome(BuildContext context, String url) async {
     final AppBloc appBloc = AppBlocProvider.of(context);
@@ -653,8 +712,19 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       );
-      childs.addAll(response.data['data']);
-      nextUrl = response.data['meta']['links']['next'];
+
+      setState(() {
+        if(url == ''){
+          childs.clear();
+        }
+        childs.addAll(response.data['data']);
+        nextUrl = response.data['meta']['links']['next'];
+        _dashboardAPINotifier.setLoading = false;
+        _dashboardAPINotifier.notifyListeners();
+      });
+//      if(nextUrl == null){
+//        scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("No more data found")));
+//      }
     } on DioError catch (e) {
       // on 400 error
       print(e.response);
@@ -665,10 +735,27 @@ class _HomePageState extends State<HomePage> {
   Future<Null> refreshList() async {
     refreshKey.currentState?.show(atTop: false);
     await fetchDataHome(context, '');
-    setState(() {
-    });
 
     return null;
+  }
+  Widget _reachedEnd() {
+    print(nextUrl);
+    if (nextUrl != null) {
+      print("Loading data");
+      _dashboardAPINotifier.setLoading = true;
+      _dashboardAPINotifier.notifyListeners();
+      return const Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: const Center(
+          child: const CircularProgressIndicator(),
+        ),
+      );
+    } else {
+      print("Tak pernah dipanggil wtf");
+      _dashboardAPINotifier.setLoading = false;
+      _dashboardAPINotifier.notifyListeners();
+
+    }
   }
 }
 

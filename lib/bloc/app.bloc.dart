@@ -32,16 +32,21 @@ class AppBloc {
 
   final AuthBloc auth;
 
+  String lang;
+
   bool isLoadedLaunch = false;
 
   AppBloc({
     @required this.app,
     @required this.sharedPreferences,
     @required this.auth,
+    @required this.lang,
   });
 
   static Future<AppBloc> initial() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String lang = (sharedPreferences.getString('lang') ?? 'en');
 
     /// Prepare AuthBloc
     AuthBloc authBloc = AuthBloc(
@@ -53,6 +58,7 @@ class AppBloc {
       app: App(),
       sharedPreferences: sharedPreferences,
       auth: authBloc,
+      lang: lang
     );
   }
 

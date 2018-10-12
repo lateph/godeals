@@ -26,15 +26,13 @@ class OpportunityForm extends DynamicForm {
   @override
   Future<Null> submit(BuildContext context) async {
     blockLoader(context);
-
     final AppBloc appBloc = AppBlocProvider.of(context);
-
     try {
       Response response = await appBloc.app.api.post(
         Api.routes[ApiRoute.newOpportunity],
         data: {
-          'checkInDate': new DateFormat('y-MM-dd').format(fields['checkInDate']),
-          'checkOutDate': new DateFormat('y-MM-dd').format(fields['checkOutDate']),
+          'checkInDate': new DateFormat('y-MM-dd', 'en').format(fields['checkInDate']),
+          'checkOutDate': new DateFormat('y-MM-dd', 'en').format(fields['checkOutDate']),
           'notes': fields['notes'].toString(),
           'areaIds': fields['areaIds'],
           'personPerRoom': fields['personPerRoom'].toString(),

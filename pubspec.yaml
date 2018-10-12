@@ -4,15 +4,22 @@ description: A new Flutter application.
 dependencies:
   flutter:
     sdk: flutter
-  rxdart: "^0.16.7"
-  dio: "^0.0.12"
-  shared_preferences: "^0.4.1"
-  validate: "^1.6.0"
-  intl: "0.15.6"
+  flutter_localizations:
+    sdk: flutter
+  rxdart:
+  dio:
+  shared_preferences:
+  flutter_swiper:
+  validate:
   sticky_headers:
   firebase_messaging:
   device_info:
   map_view:
+  intl:
+  intl_translation:
+  scoped_model:
+  timeago:
+  flutter_rating:
 
 dev_dependencies:
   flutter_test:

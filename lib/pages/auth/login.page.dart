@@ -1,8 +1,12 @@
+import 'package:godeals_agen/AppModel.dart';
 import 'package:godeals_agen/forms/auth/login.form.dart';
 import 'package:godeals_agen/helpers/background_decoration.dart';
+import 'package:godeals_agen/main.dart';
 import 'package:godeals_agen/pages/auth/forgot_password.page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:godeals_agen/translation_strings.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routeName = '/auth/login';
@@ -80,9 +84,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                new Text('Welcome to', style: textTheme.title.copyWith(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 36.0, height: 1.0), textAlign: TextAlign.center),
-                new Text('Godeals', style: textTheme.title.copyWith(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 36.0, height: 0.8), textAlign: TextAlign.center),
-                new Text('First Wholesale Hotel Booking app', style: textTheme.title.copyWith(fontWeight: FontWeight.normal, color: Colors.white, height: 2.0), textAlign: TextAlign.center),
+                new Text(Translations.of(context).login_welcome, style: textTheme.title.copyWith(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 36.0, height: 1.0), textAlign: TextAlign.center),
+                new Text(Translations.of(context).login_welcome2, style: textTheme.title.copyWith(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 36.0, height: 0.8), textAlign: TextAlign.center),
+                new Text(Translations.of(context).login_desc, style: textTheme.title.copyWith(fontWeight: FontWeight.normal, color: Colors.white, height: 2.0), textAlign: TextAlign.center),
                 new Padding(padding: EdgeInsets.only(top: 20.0)),
                 _buildLoginForm(context),
                 _buildLoginButton(context),
@@ -143,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                                   contentPadding: const EdgeInsets.only(left: 20.0, top: 20.0, right: 12.0, bottom: 20.0),
                                   border:  InputBorder.none,
                                   isDense: true,
-                                  hintText: 'Username',
+                                  hintText: Translations.of(context).username,
                                   hintStyle: new TextStyle(color: Colors.grey),
                                   labelStyle: new TextStyle(color: Colors.white, decorationColor: Colors.white),
                                   errorStyle: new TextStyle(color: Colors.black),
@@ -179,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                                   hintStyle: new TextStyle(color: Colors.grey),
                                   labelStyle: new TextStyle(color: Colors.white, decorationColor: Colors.white),
                                   errorStyle: new TextStyle(color: Colors.black),
-                                  hintText: 'Password',
+                                  hintText: Translations.of(context).password,
 //                                  errorText: snapshot.hasData
 //                                      ? snapshot.data['password']?.join(', ')
 //                                      : null,
@@ -211,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
       child: RaisedButton(
         padding: EdgeInsets.all(15.0),
-        child: Text('LOG IN' , style: new TextStyle(color: Colors.green, fontWeight: FontWeight.w700, fontSize: 14.0)),
+        child: Text(Translations.of(context).login , style: new TextStyle(color: Colors.green, fontWeight: FontWeight.w700, fontSize: 14.0)),
         color: Colors.white,
         textTheme: ButtonTextTheme.primary,
         elevation: 4.0,
@@ -239,21 +243,18 @@ class _LoginPageState extends State<LoginPage> {
         bottom: 24.0,
         top: 0.0,
       ),
-      child: RaisedButton(
-        padding: EdgeInsets.all(15.0),
-        child: Text('Arabic' , style: new TextStyle(color: Colors.green, fontWeight: FontWeight.w700, fontSize: 14.0)),
-        color: Colors.white,
-        textTheme: ButtonTextTheme.primary,
-        elevation: 4.0,
-        onPressed: () async {
-          // save form
-          _loginForm.key.currentState.save();
-
-          // validate then submit
-          if (_loginForm.key.currentState.validate()) {
-            await _loginForm.submit(context);
-          }
-        },
+      child: ScopedModelDescendant<AppModel>(
+        builder: (context, child, model) => RaisedButton(
+          padding: EdgeInsets.all(15.0),
+          child: Text(Translations.of(context).language , style: new TextStyle(color: Colors.green, fontWeight: FontWeight.w700, fontSize: 14.0)),
+          color: Colors.white,
+          textTheme: ButtonTextTheme.primary,
+          elevation: 4.0,
+          onPressed: () {
+            print(model);
+            model.changeDirection();
+          },
+        ),
       ),
     );
   }

@@ -46,7 +46,8 @@ class NewOpportunityState extends State<NewOpportunityPage> {
     super.initState();
     cameraPosition = new CameraPosition(Locations.portland, 2.0);
     _opportunityForm.fetchDataList(context).then((value) {
-      areas = value;
+      areas = value['areas'];
+//      sevicesPilihan = value['rooms'];
     });
   }
 
@@ -96,8 +97,6 @@ class NewOpportunityState extends State<NewOpportunityPage> {
         child: StreamBuilder<Map<String, dynamic>>(
           stream: _opportunityForm.errors,
           builder: (context, snapshot) {
-            print("Has data: " + snapshot.hasData.toString());
-            print("Error data: " + snapshot.data.toString());
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -217,43 +216,43 @@ class NewOpportunityState extends State<NewOpportunityPage> {
 //                ),
 //                _buildErrorText(snapshot, 'phoneNumber'),
 //                Container(height: 15.0),
-//                new Text('Select Services'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
-//                Container(height: 8.0),
-//                sevices.length == 0 ? new Container(
-//                  height: 100.0,
-//                  child: new Center(
-//                    child: new Text('No Services Selected'),
-//                  ),
-//                ) : new GridView.count(
-//                    primary: false,
-//                    shrinkWrap: true,
-//                    crossAxisCount: 4,
-//                    childAspectRatio: 1.5,
-//                    padding: const EdgeInsets.all(4.0),
-//                    mainAxisSpacing: 4.0,
-//                    crossAxisSpacing: 4.0,
-//                    children: sevices.map((dynamic url) {
-//                      return new GridTile(
-//                          child: new Column(
-//                            children: <Widget>[
-//                              new Icon(myIcons[url], color: textGrey,),
-//                              new Text(url, style: TextStyle(color: textGrey),),
-//                            ],
-//                          ));
-//                    }).toList()),
-//                new FlatButton(
-//                  onPressed: () {
-//                    _editEntry(context);
-//                  },
-//                  padding: EdgeInsets.all(10.0),
-//                  child: Row( // Replace with a Row for horizontal icon + text
-//                    mainAxisAlignment: MainAxisAlignment.end,
-//                    children: <Widget>[
-//                      Text("Add or Edit Services", style: TextStyle(color: warnaHijau,fontWeight: FontWeight.w600, fontSize: 16.0)),
-//                      Icon(Icons.chevron_right, color: warnaHijau,),
-//                    ],
-//                  ),
-//                ),
+                new Text('Select Services'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
+                Container(height: 8.0),
+                sevices.length == 0 ? new Container(
+                  height: 100.0,
+                  child: new Center(
+                    child: new Text('No Services Selected'),
+                  ),
+                ) : new GridView.count(
+                    primary: false,
+                    shrinkWrap: true,
+                    crossAxisCount: 4,
+                    childAspectRatio: 1.5,
+                    padding: const EdgeInsets.all(4.0),
+                    mainAxisSpacing: 4.0,
+                    crossAxisSpacing: 4.0,
+                    children: sevices.map((dynamic url) {
+                      return new GridTile(
+                          child: new Column(
+                            children: <Widget>[
+                              new Icon(myIcons[url], color: textGrey,),
+                              new Text(url, style: TextStyle(color: textGrey),),
+                            ],
+                          ));
+                    }).toList()),
+                new FlatButton(
+                  onPressed: () {
+                    _editEntry(context);
+                  },
+                  padding: EdgeInsets.all(10.0),
+                  child: Row( // Replace with a Row for horizontal icon + text
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text("Add or Edit Services", style: TextStyle(color: warnaHijau,fontWeight: FontWeight.w600, fontSize: 16.0)),
+                      Icon(Icons.chevron_right, color: warnaHijau,),
+                    ],
+                  ),
+                ),
                 Container(height: 15.0),
                 new Text('NOTES'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
                 Container(height: 8.0),
@@ -370,7 +369,6 @@ class NewOpportunityState extends State<NewOpportunityPage> {
   }
 
   drawPoly() {
-    print(areas);
     mapView.setPolygons(
       areas.map((dynamic item) {
         List <dynamic>locations = item['pointCoordinates'];
@@ -389,7 +387,6 @@ class NewOpportunityState extends State<NewOpportunityPage> {
   }
 
   showMap() {
-    print('taek');
     mapView.show(
         new MapOptions(
             mapViewType: MapViewType.normal,
@@ -448,8 +445,6 @@ class NewOpportunityState extends State<NewOpportunityPage> {
 
   Widget _buildErrorText(AsyncSnapshot snapshot, String f) {
     if(snapshot.hasData && snapshot.data[f].runtimeType.toString() != 'Null'){
-      print('jancok');
-      print(snapshot.data[f].runtimeType.toString());
       return new Container(
         margin: EdgeInsets.only(top: 5.0),
         child: new Text(snapshot.data[f].join(', '), style: new TextStyle(color: Colors.red[600], fontSize: 12.0)),
@@ -563,8 +558,6 @@ class SelectServiceDialog extends StatefulWidget {
 
   @override
   SelectServiceDialogState createState() {
-    print('kudue onok');
-    print(choice);
     return new SelectServiceDialogState(values, choice);
   }
 }
@@ -638,8 +631,8 @@ class SelectServiceDialogState extends State<SelectServiceDialog> {
   Widget buildListTile(BuildContext context, dynamic values) {
     return new MergeSemantics(
       child: ListTile(
-        leading: new Icon(myIcons[values.toString()], color:  params.indexOf(values) > -1 ?  warnaHijau : textGrey),
-        title: new Text(values.toString(), style: TextStyle(color: params.indexOf(values) > -1 ?  warnaHijau : textGrey, fontSize: 20.0),),
+//        leading: new Icon(myIcons[values.toString()], color:  params.indexOf(values) > -1 ?  warnaHijau : textGrey),
+        title: new Text(values['name'].toString(), style: TextStyle(color: params.indexOf(values) > -1 ?  warnaHijau : textGrey, fontSize: 20.0),),
         trailing: params.indexOf(values) > -1 ? new Icon(Icons.done, color: warnaHijau,) : null,
         onTap: () {
           setState(() {

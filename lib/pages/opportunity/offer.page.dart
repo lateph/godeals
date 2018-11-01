@@ -30,6 +30,12 @@ class OfferPage extends StatefulWidget {
   }
 }
 
+enum DialogAction {
+  ignored,
+  accepted,
+  cancelled,
+}
+
 enum AppBarBehavior { normal, pinned, floating, snapping }
 
 class OfferPageState extends State<OfferPage> {
@@ -42,47 +48,113 @@ class OfferPageState extends State<OfferPage> {
 
     final ThemeData theme = Theme.of(context);
     final TextTheme textTheme = theme.textTheme;
+    List<dynamic> images = widget.data['hotel']['images'];
+
 
     return Scaffold(
       key: _scaffoldKey,
-      floatingActionButton: FancyFab(
-        onAccept: (){
-          return showDialog<Null>(
-            context: context,
-            barrierDismissible: false, // user must tap button!
-            builder: (BuildContext context) {
-              return new AlertDialog(
-                title: new Text('Confirmation'),
-                content: new SingleChildScrollView(
-                  child: new ListBody(
+//      floatingActionButton: new FancyFab(
+//        onAccept: (){
+//          return showDialog<Null>(
+//            context: context,
+//            barrierDismissible: false, // user must tap button!
+//            builder: (BuildContext context) {
+//              return new AlertDialog(
+//                title: new Text('Confirmation'),
+//                content: new SingleChildScrollView(
+//                  child: new ListBody(
+//                    children: <Widget>[
+//                      new Text('Are your sure to Accept Offer ?'),
+//                    ],
+//                  ),
+//                ),
+//                actions: <Widget>[
+//                  new FlatButton(
+//                    child: new Text('Accept'),
+//                    onPressed: () async {
+//                      dynamic val = await cahngeStatus(context, widget.data['id'], 'accepted');
+//                      Navigator.of(context).pop();
+//                    },
+//                  ),
+//                  new FlatButton(
+//                    child: new Text('Cancel'),
+//                    onPressed: () {
+//                      Navigator.of(context).pop();
+//                    },
+//                  ),
+//                ],
+//              );
+//            },
+//          );
+//        },
+//      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if(widget.data['status'] == 'new' ) {
+            showDialog<String>(
+              context: context,
+              builder: (BuildContext context) =>
+                SimpleDialog(
+                    title: const Text('Set Status'),
                     children: <Widget>[
-                      new Text('Are your sure to Accept Offer ?'),
-                    ],
-                  ),
+                      _DialogDemoItem(
+                          icon: Icons.done,
+                          color: theme.primaryColor,
+                          text: 'Accepted',
+                          onPressed: () async {
+                            try {
+                              await cahngeStatus(
+                                  context, widget.data['id'], 'accepted');
+                              Navigator.pop(context, 'Data Accepted');
+                              setState(() {
+                                widget.data['status'] = 'accepted';
+                              });
+                            }
+                            catch (e) {
+                              _scaffoldKey.currentState.showSnackBar(SnackBar(
+                                  content: Text(e.toString())
+                              ));
+                            }
+                          }
+                      ),
+                      _DialogDemoItem(
+                          icon: Icons.clear,
+                          color: theme.primaryColor,
+                          text: 'Ignored',
+                          onPressed: () async {
+                            try {
+                              await cahngeStatus(
+                                  context, widget.data['id'], 'ignored');
+                              Navigator.pop(context, 'Data Updated');
+                              setState(() {
+                                widget.data['status'] = 'ignored';
+                              });
+                            }
+                            catch (e) {
+                              _scaffoldKey.currentState.showSnackBar(SnackBar(
+                                  content: Text(e.toString())
+                              ));
+                            }
+                          }
+                      ),
+                    ]
                 ),
-                actions: <Widget>[
-                  new FlatButton(
-                    child: new Text('Accept'),
-                    onPressed: () async {
-                      dynamic val = await cahngeStatus(context, widget.data['id'], 'accepted');
-                      print(val);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  new FlatButton(
-                    child: new Text('Cancel'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
+              )
+                .then<void>((
+                String value) { // The value passed to Navigator.pop() or null.
+                  if (value != null) {
+                    _scaffoldKey.currentState.showSnackBar(SnackBar(
+                        content: Text(value)
+                    ));
+                  }
+                });
+          }
         },
+        child: Icon(Icons.edit),
+        backgroundColor: widget.data['status'] == 'new'  ? Colors.orange : Colors.grey,
       ),
-
-      body: CustomScrollView(
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      body: new CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
             expandedHeight: _appBarHeight,
@@ -92,9 +164,9 @@ class OfferPageState extends State<OfferPage> {
 //              centerTitle: true,
               background:  new Swiper(
                 itemBuilder: (BuildContext context,int index){
-                  return new Image.network("https://media-cdn.tripadvisor.com/media/photo-s/08/20/75/0d/hotel-contessa.jpg",fit: BoxFit.cover);
+                  return new Image.network(images[index]['thumbnailUrl'].toString(),fit: BoxFit.cover);
                 },
-                itemCount: 3,
+                itemCount: images.length,
                 pagination: new SwiperPagination()
               ),
             ),
@@ -147,9 +219,36 @@ class OfferPageState extends State<OfferPage> {
           ),
         ],
       ),
+      bottomNavigationBar: bottomAppBarStatus(widget.data['status'])
+
+    );
+  }
+
+  Widget bottomAppBarStatus(String status) {
+    Color cStatus = warnaHijau;
+    if(status == 'new'){
+      cStatus = warnaOranye;
+    }
+    if(status == 'ignored'){
+      cStatus = Colors.deepOrange;
+    }
+    return new BottomAppBar(
+      color: cStatus,
+      shape: const CircularNotchedRectangle(),
+      child: Row(
+        children: <Widget>[
+          MaterialButton(
+            child: Text(status, style: TextStyle(color: Colors.white),),
+            onPressed: () {
+            },
+          ),
+        ],
+      ),
     );
   }
 }
+
+
 class _ContactCategory extends StatelessWidget {
   const _ContactCategory({ Key key, this.icon, this.children }) : super(key: key);
 
@@ -261,19 +360,54 @@ class _DetailItem extends StatelessWidget {
 Future<dynamic> cahngeStatus(BuildContext context, String id, String status) async {
   final AppBloc appBloc = AppBlocProvider.of(context);
 //    try {
-  Response response = await appBloc.app.api.get(
+  print('halo');
+  print( {
+    'id': id,
+    'status': status
+  });
+
+  Response response = await appBloc.app.api.put(
     '/offer/status',
     data: {
-      id: id,
-      status: status
+      'id': id,
+      'status': status
     },
     options: Options(
       contentType: ContentType.JSON,
       headers: {
         'Authorization': appBloc.auth.deviceState.bearer,
+        'Content-Type': 'application/json'
       },
     ),
   );
 
   return response.data;
+}
+
+
+class _DialogDemoItem extends StatelessWidget {
+  const _DialogDemoItem({ Key key, this.icon, this.color, this.text, this.onPressed }) : super(key: key);
+
+  final IconData icon;
+  final Color color;
+  final String text;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialogOption(
+      onPressed: onPressed,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Icon(icon, size: 36.0, color: color),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Text(text),
+          ),
+        ],
+      ),
+    );
+  }
 }

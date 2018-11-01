@@ -17,6 +17,7 @@ enum ApiRoute {
   componentStock,
   locations,
   areas,
+  rooms,
   newOpportunity,
   opportuniryList
 }
@@ -41,6 +42,7 @@ class Api {
     ApiRoute.componentStock: '/report/component-stock',
     ApiRoute.locations: '/master/location?page=all',
     ApiRoute.areas: '/list/area',
+    ApiRoute.rooms: '/list/room-service',
     ApiRoute.newOpportunity: '/opportunity/create',
     ApiRoute.opportuniryList: '/opportunity/list?per-page=5'
 

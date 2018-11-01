@@ -161,8 +161,8 @@ class _HomePageState extends State<HomePage> {
                     child: new Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        new Text('You Have 10 Active Opportunity', style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w600),),
-                        new Container(
+                        new Text('You Have '+childs.length.toString()+' Active Opportunity', style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w600),),
+                        childs.length > 0 ? new Container(
                             margin: const EdgeInsets.only(
                               top: 10.0,
                               right: 10.0,
@@ -180,6 +180,24 @@ class _HomePageState extends State<HomePage> {
                              borderRadius: BorderRadius.circular(13.0)
                            ),
                            child: new Text('23 Hours 57 Min', style: TextStyle(color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w600),),
+                        ) : new Container(
+                          margin: const EdgeInsets.only(
+                            top: 10.0,
+                            right: 10.0,
+                            left: 10.0,
+                            bottom: 10.0,
+                          ),
+                          padding: const EdgeInsets.only(
+                            top: 10.0,
+                            right: 10.0,
+                            left: 10.0,
+                            bottom: 10.0,
+                          ),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.white,width: 2.0),
+                              borderRadius: BorderRadius.circular(13.0)
+                          ),
+                          child: new Text('00 Hours 00 Min', style: TextStyle(color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w600),),
                         ),
                       ],
                     ),
@@ -704,7 +722,9 @@ class _HomePageState extends State<HomePage> {
     try {
       Response response = await appBloc.app.api.get(
         url == '' ? Api.routes[ApiRoute.opportuniryList] : url,
-//        data: fields,
+        data: {
+          'checkInDate' : new DateFormat('y-MM-dd', 'en').format(new DateTime.now())
+        },
         options: Options(
           contentType: ContentType.JSON,
           headers: {

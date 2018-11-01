@@ -83,8 +83,23 @@ class OpportunityForm extends DynamicForm {
           },
         ),
       );
-      print(response.data);
-      return response.data['data'];
+
+      Response response2 = await appBloc.app.api.get(
+        Api.routes[ApiRoute.rooms],
+//        data: fields,
+        options: Options(
+          contentType: ContentType.JSON,
+          headers: {
+            'Authorization': appBloc.auth.deviceState.bearer,
+          },
+        ),
+      );
+
+
+      return {
+        'areas': response.data['data'],
+        'rooms': response2.data['data'],
+      };
 //      return {};
 
       // push member verification, and dispose all route before

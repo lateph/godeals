@@ -63,7 +63,7 @@ class OpportunityForm extends DynamicForm {
     } on DioError catch (e) {
       // on 400 error
       if (e.response != null) {
-        print(e.response.data['data']);
+        print(e.response.data);
         errorMessages = e.response.data['data'];
         Scaffold.of(context).showSnackBar(new SnackBar(
           content: new Text("Check your input"),

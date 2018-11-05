@@ -4,7 +4,7 @@ class App {
   final String name = 'AksaraPay';
   final String version = '0.0.1';
 
-  final String baseUrl = 'http://192.168.1.101';
+  final String baseUrl = 'http://api.godeals.server-development.net';
   final Map<String, String> defaultHeaders = {
     'X-App-key': 'GoDealsDevelopmentAppKey',
     'X-App-secret': 'GoDealsDevelopmentAppSecret',

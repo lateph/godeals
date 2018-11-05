@@ -45,6 +45,7 @@ class LoginForm extends BaseForm {
 //          'firebaseToken': token.toString(),
       });
 
+      print(Api.routes[ApiRoute.authLogin]);
       Response response = await appBloc.app.api.post(
         Api.routes[ApiRoute.authLogin],
         data: {

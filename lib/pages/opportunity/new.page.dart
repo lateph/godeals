@@ -117,7 +117,6 @@ class NewOpportunityState extends State<NewOpportunityForm> {
   Uri staticMapUri;
   CameraPosition cameraPosition;
   var compositeSubscription = new CompositeSubscription();
-  List<dynamic> areas = [];
 
   final OpportunityForm _opportunityForm = OpportunityForm();
   List<dynamic> sevices = [];
@@ -283,25 +282,6 @@ class NewOpportunityState extends State<NewOpportunityForm> {
                     ),
                   ],
                 ),
-//                Container(height: 15.0),
-//                new Text('City, Destination, Or Hotel Name'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
-//                new Container(height: 8.0,),
-//                new Container(
-//                    padding: EdgeInsets.only(left: 15.0, right: 35.0, top: 5.0, bottom: 5.0),
-//                    decoration: BoxDecoration(
-//                        borderRadius: BorderRadius.circular(5.0),
-//                        color: Colors.white
-//                    ),
-//                    child: TextFormField(
-//                      keyboardType: TextInputType.phone,
-//                      decoration: InputDecoration(
-//                        border: InputBorder.none,
-//                        isDense: true
-//                      ),
-//                      onSaved: (val) => _opportunityForm.fields['phoneNumber'] = val,
-//                    ),
-//                ),
-//                _buildErrorText(snapshot, 'phoneNumber'),
                 Container(height: 15.0),
                 new Text('Select Services'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
                 Container(height: 8.0),
@@ -320,12 +300,13 @@ class NewOpportunityState extends State<NewOpportunityForm> {
                     crossAxisSpacing: 4.0,
                     children: sevices.map((dynamic url) {
                       final servce = widget.data['rooms'][widget.data['rooms'].indexWhere((s) => s['id'] == url.toString() )];
+                      print(servce['imageUrl'].toString());
                       return new GridTile(
                           child: new Column(
                             children: <Widget>[
 //                              new Icon(myIcons[url], color: textGrey,),
                               Image.network(servce['imageUrl'].toString()),
-                              new Text(servce['name'], style: TextStyle(color: textGrey),),
+                              new Text(servce['name'].toString(), style: TextStyle(color: textGrey),),
                             ],
                           ));
                     }).toList()),
@@ -370,10 +351,10 @@ class NewOpportunityState extends State<NewOpportunityForm> {
                     child: new Container(
                       margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
                       child: _opportunityForm.fields['areaIds'].length == 0 ? new Text('No Area Selected') : new Text(_opportunityForm.fields['areaIds'].map((dynamic id) {
-                        var index = areas.indexWhere((dynamic i){
+                        var index = widget.data['areas'].indexWhere((dynamic i){
                           return i['id'].toString() == id.toString();
                         });
-                        return areas[index]['name'].toString();
+                        return widget.data['areas'][index]['name'].toString();
                       }).toList().join(', ')),
                     )
                   ),
@@ -437,13 +418,14 @@ class NewOpportunityState extends State<NewOpportunityForm> {
         .push(
       new MaterialPageRoute<dynamic>(
         builder: (BuildContext context) {
-          return new SelectServiceDialog.edit(sevices, sevicesPilihan);
+          return new SelectServiceDialog.edit(sevices, widget.data['rooms']);
         },
         fullscreenDialog: true,
       ),
     )
         .then((newSave) {
       if (newSave != null) {
+        _opportunityForm.fields['additionalService'] = newSave;
 //        setState(() => searchModel = newSave);
 //        resend(context);
       }
@@ -451,8 +433,9 @@ class NewOpportunityState extends State<NewOpportunityForm> {
   }
 
   drawPoly() {
+    final List<dynamic> areas = widget.data['areas'];
     mapView.setPolygons(
-      areas.map((dynamic item) {
+        areas.map((dynamic item) {
         List <dynamic>locations = item['pointCoordinates'];
         return new Polygon(
             item['id'].toString(),
@@ -684,7 +667,7 @@ class SelectServiceDialogState extends State<SelectServiceDialog> {
         elevation: 0.0,
         highlightElevation: 0.0,
         onPressed: () async {
-          Navigator.of(context).pop(choice);
+          Navigator.of(context).pop(params);
         },
       )
     );
@@ -709,15 +692,15 @@ class SelectServiceDialogState extends State<SelectServiceDialog> {
       child: ListTile(
 //        leading: new Icon(myIcons[values.toString()], color:  params.indexOf(values) > -1 ?  warnaHijau : textGrey),
         title: new Text(values['name'].toString(), style: TextStyle(color: params.indexOf(values) > -1 ?  warnaHijau : textGrey, fontSize: 20.0),),
-        trailing: params.indexOf(values) > -1 ? new Icon(Icons.done, color: warnaHijau,) : null,
+        trailing: params.indexOf(values['id']) > -1 ? new Icon(Icons.done, color: warnaHijau,) : null,
         onTap: () {
           setState(() {
-            int index = params.indexOf(values);
+            int index = params.indexOf(values['id']);
             if(index > -1){
               params.removeAt(index);
             }
             else{
-              params.add(values.toString());
+              params.add(values['id'].toString());
             }
           });
         },

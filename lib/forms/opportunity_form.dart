@@ -16,6 +16,7 @@ class OpportunityForm extends DynamicForm {
       'checkInDate': new DateTime.now(),
       'checkOutDate': new DateTime.now(),
       'notes': '',
+      'additionalService': [],
       'areaIds': [],
       'personPerRoom': '',
       'roomNeeded': ''
@@ -26,6 +27,15 @@ class OpportunityForm extends DynamicForm {
   Future<Null> submit(BuildContext context) async {
     blockLoader(context);
     final AppBloc appBloc = AppBlocProvider.of(context);
+    print({
+      'checkInDate': new DateFormat('y-MM-dd', 'en').format(fields['checkInDate']),
+      'checkOutDate': new DateFormat('y-MM-dd', 'en').format(fields['checkOutDate']),
+      'notes': fields['notes'].toString(),
+      'areaIds': fields['areaIds'],
+      'additionalService': fields['additionalService'],
+      'personPerRoom': fields['personPerRoom'].toString(),
+      'roomNeeded': fields['roomNeeded'].toString()
+    });
     try {
       Response response = await appBloc.app.api.post(
         Api.routes[ApiRoute.newOpportunity],
@@ -34,6 +44,7 @@ class OpportunityForm extends DynamicForm {
           'checkOutDate': new DateFormat('y-MM-dd', 'en').format(fields['checkOutDate']),
           'notes': fields['notes'].toString(),
           'areaIds': fields['areaIds'],
+          'additionalService': fields['additionalService'],
           'personPerRoom': fields['personPerRoom'].toString(),
           'roomNeeded': fields['roomNeeded'].toString()
         },
@@ -52,7 +63,7 @@ class OpportunityForm extends DynamicForm {
     } on DioError catch (e) {
       // on 400 error
       if (e.response != null) {
-        print(e.response.data.toString());
+        print(e.response.data['data']);
         errorMessages = e.response.data['data'];
         Scaffold.of(context).showSnackBar(new SnackBar(
           content: new Text("Check your input"),

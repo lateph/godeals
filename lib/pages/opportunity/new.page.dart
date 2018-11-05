@@ -1,6 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:async/async.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:godeals_agen/bloc/app.bloc.dart';
+import 'package:godeals_agen/config/api.config.dart';
 import 'package:godeals_agen/config/style.config.dart';
 import 'package:intl/intl.dart';
 import 'package:godeals_agen/forms/opportunity_form.dart';
@@ -12,6 +17,86 @@ const API_KEY = "AIzaSyAJTfjIwyfcQhfYtxbVoNkKipNQPznVELo";
 
 class NewOpportunityPage extends StatefulWidget {
   static const String routeName = '/new-opportunity';
+
+  @override
+  NewOpportunityPageState createState() => NewOpportunityPageState();
+}
+
+class NewOpportunityPageState extends State<NewOpportunityPage> {
+
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
+  bool isData = false;
+  dynamic data;
+
+  @override
+  void didChangeDependencies() {
+    fetchDataList(context).then((val){
+      data = val;
+      isData = true;
+      setState((){
+        print('data updated');
+      });
+    });
+    super.didChangeDependencies();
+  }
+
+  TextEditingController controller = new TextEditingController();
+
+  Widget _createAppBar(BuildContext context) {
+    return new AppBar(
+      title: Text("Create Opportunity"),
+      elevation: 0.0,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return  Scaffold(
+      backgroundColor: Colors.blueGrey[50],
+      appBar: _createAppBar(context),
+      body: isData ? NewOpportunityForm(data: data) : Center(child: CircularProgressIndicator())
+//      body: NewOpportunityForm(data: {'rooms': [{'id':'1'}]})
+    );
+  }
+
+  Future<dynamic> fetchDataList(BuildContext context) async {
+    return this._memoizer.runOnce(() async {
+      final AppBloc appBloc = AppBlocProvider.of(context);
+      Response response = await appBloc.app.api.get(
+        Api.routes[ApiRoute.areas],
+//        data: fields,
+        options: Options(
+          contentType: ContentType.JSON,
+          headers: {
+            'Authorization': appBloc.auth.deviceState.bearer,
+          },
+        ),
+      );
+
+      Response response2 = await appBloc.app.api.get(
+        Api.routes[ApiRoute.rooms],
+//        data: fields,
+        options: Options(
+          contentType: ContentType.JSON,
+          headers: {
+            'Authorization': appBloc.auth.deviceState.bearer,
+          },
+        ),
+      );
+
+
+      return {
+        'areas': response.data['data'],
+        'rooms': response2.data['data'],
+      };
+    });
+  }
+}
+
+class NewOpportunityForm extends StatefulWidget {
+  final dynamic data;
+  const NewOpportunityForm({Key key, this.data}): super(key: key);
+
 
   @override
   NewOpportunityState createState() {
@@ -27,28 +112,32 @@ class NewOpportunityPage extends StatefulWidget {
   }
 }
 
-class NewOpportunityState extends State<NewOpportunityPage> {
+class NewOpportunityState extends State<NewOpportunityForm> {
   MapView mapView = new MapView();
   Uri staticMapUri;
   CameraPosition cameraPosition;
   var compositeSubscription = new CompositeSubscription();
-
   List<dynamic> areas = [];
 
   final OpportunityForm _opportunityForm = OpportunityForm();
-  List<dynamic> sevices = ['wifi'];
-  List<dynamic> sevicesPilihan = ['wifi', 'free_breakfast', 'tv', 'pool', 'restaurant'];
+  List<dynamic> sevices = [];
+//  List<dynamic> sevicesPilihan = ['wifi', 'free_breakfast', 'tv', 'pool', 'restaurant'];
   List<dynamic> areasPilihan = [];
+  List<dynamic> sevicesPilihan = [];
 
 
   @override
   initState() {
     super.initState();
     cameraPosition = new CameraPosition(Locations.portland, 2.0);
-    _opportunityForm.fetchDataList(context).then((value) {
-      areas = value['areas'];
-//      sevicesPilihan = value['rooms'];
-    });
+//    _opportunityForm.fetchDataList(context).then((value) {
+//      setState(() {
+//        areas = value['areas'];
+//        print(value['rooms']);
+//        print('ngeseng');
+//        sevicesPilihan = value['rooms'];
+//      });
+//    });
   }
 
   @override
@@ -59,26 +148,22 @@ class NewOpportunityState extends State<NewOpportunityPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
-      appBar: _createAppBar(context),
-      body: Builder(
-        builder: (context) => SingleChildScrollView(
-          child: new Container(
-  //          constraints: BoxConstraints(
-  //            minHeight: MediaQuery.of(context).size.height,
-  //          ),
-            child: new SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  _buildRegisterForm(context),
-                  _buildRegisterButton(context),
-                ],
-              ),
-            ),
+    return Builder(
+      builder: (context) => SingleChildScrollView(
+        child: new Container(
+          //          constraints: BoxConstraints(
+          //            minHeight: MediaQuery.of(context).size.height,
+          //          ),
+          child: new SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                _buildRegisterForm(context),
+                _buildRegisterButton(context),
+              ],
+            )
           ),
-        )
+        ),
       )
     );
   }
@@ -160,7 +245,9 @@ class NewOpportunityState extends State<NewOpportunityPage> {
                                    border: InputBorder.none,
                                    isDense: true,
                                  ),
-                                 onSaved: (val) => _opportunityForm.fields['roomNeeded'] = val,
+                                 onSaved: (val) {
+                                   _opportunityForm.fields['roomNeeded'] = val;
+                                 }
                                )
                            ),
                            _buildErrorText(snapshot, 'roomNeeded')
@@ -215,7 +302,7 @@ class NewOpportunityState extends State<NewOpportunityPage> {
 //                    ),
 //                ),
 //                _buildErrorText(snapshot, 'phoneNumber'),
-//                Container(height: 15.0),
+                Container(height: 15.0),
                 new Text('Select Services'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey),),
                 Container(height: 8.0),
                 sevices.length == 0 ? new Container(
@@ -232,11 +319,13 @@ class NewOpportunityState extends State<NewOpportunityPage> {
                     mainAxisSpacing: 4.0,
                     crossAxisSpacing: 4.0,
                     children: sevices.map((dynamic url) {
+                      final servce = widget.data['rooms'][widget.data['rooms'].indexWhere((s) => s['id'] == url.toString() )];
                       return new GridTile(
                           child: new Column(
                             children: <Widget>[
-                              new Icon(myIcons[url], color: textGrey,),
-                              new Text(url, style: TextStyle(color: textGrey),),
+//                              new Icon(myIcons[url], color: textGrey,),
+                              Image.network(servce['imageUrl'].toString()),
+                              new Text(servce['name'], style: TextStyle(color: textGrey),),
                             ],
                           ));
                     }).toList()),
@@ -339,13 +428,6 @@ class NewOpportunityState extends State<NewOpportunityPage> {
           }
         },
       ),
-    );
-  }
-  
-  Widget _createAppBar(BuildContext context) {
-    return new AppBar(
-      title: Text("Create Opportunity"),
-      elevation: 0.0,
     );
   }
 
@@ -576,12 +658,6 @@ class SelectServiceDialogState extends State<SelectServiceDialog> {
       backgroundColor: Colors.transparent,
       elevation: 0.0,
     );
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override

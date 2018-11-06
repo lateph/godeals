@@ -203,6 +203,7 @@ class OfferPageState extends State<OfferPage> {
                 child: _ContactCategory(
                   icon: Icons.local_hotel,
                   children: details.map((e){
+                    final List<dynamic> services = e['services'];
                     return _ContactItem(
                       lines: <String>[
                         '${e['roomType']}',
@@ -210,6 +211,28 @@ class OfferPageState extends State<OfferPage> {
                         '${e['pricePerRoom']}/Rooms',
                         '${e['notes']}',
                       ],
+                      services: services.length == 0 ? new Container(
+                        height: 100.0,
+                        child: new Center(
+                          child: new Text('No Services Selected'),
+                        ),
+                      ) : new GridView.count(
+                          primary: false,
+                          shrinkWrap: true,
+                          crossAxisCount: 4,
+                          childAspectRatio: 1.5,
+                          padding: const EdgeInsets.all(10.0),
+                          mainAxisSpacing: 4.0,
+                          crossAxisSpacing: 4.0,
+                          children: services.map((dynamic url) {
+                            return new GridTile(
+                                child: new Column(
+                                  children: <Widget>[
+                                    new Image.network(url['imageUrl'].toString(), width: 30.0,),
+                                    new Text(url['name'].toString(), style: TextStyle(color: textGrey),),
+                                  ],
+                                ));
+                          }).toList()),
                     );
                   }).toList(),
                 ),
@@ -286,11 +309,12 @@ class _ContactCategory extends StatelessWidget {
 }
 
 class _ContactItem extends StatelessWidget {
-  _ContactItem({ Key key, this.icon, this.lines, this.tooltip, this.onPressed}) :
+  _ContactItem({ Key key, this.icon, this.lines, this.tooltip, this.onPressed, this.services}) :
         super(key: key);
 
   final IconData icon;
   final List<String> lines;
+  final Widget services;
   final String tooltip;
   final VoidCallback onPressed;
 
@@ -299,6 +323,9 @@ class _ContactItem extends StatelessWidget {
     final ThemeData themeData = Theme.of(context);
     final List<Widget> columnChildren = lines.sublist(0, lines.length - 1).map<Widget>((String line) => Text(line)).toList();
     columnChildren.add(Text(lines.last, style: themeData.textTheme.caption));
+
+    if(services != null)
+      columnChildren.add(services);
 
     final List<Widget> rowChildren = <Widget>[
       Expanded(

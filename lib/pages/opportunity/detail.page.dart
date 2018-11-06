@@ -122,6 +122,7 @@ class DetailOpportunityState extends State<DetailOpportunityPage> {
     );
   }
   Widget _detailOpportunity(BuildContext context, dynamic data) {
+    final List<dynamic> services = todo['services'];
     return SingleChildScrollView (
       child: new Container(
         child: new Column(
@@ -191,7 +192,7 @@ class DetailOpportunityState extends State<DetailOpportunityPage> {
               padding: EdgeInsets.only(left: 20.0, top: 10.0),
               child: new Text('Includes'.toUpperCase(), style: TextStyle(fontSize: 14.0, color: Colors.grey, fontWeight: FontWeight.w300),),
             ),
-            sevices.length == 0 ? new Container(
+            services.length == 0 ? new Container(
               height: 100.0,
               child: new Center(
                 child: new Text('No Services Selected'),
@@ -204,12 +205,12 @@ class DetailOpportunityState extends State<DetailOpportunityPage> {
                 padding: const EdgeInsets.all(10.0),
                 mainAxisSpacing: 4.0,
                 crossAxisSpacing: 4.0,
-                children: sevices.map((dynamic url) {
+                children: services.map((dynamic url) {
                   return new GridTile(
                       child: new Column(
                         children: <Widget>[
-                          new Icon(myIcons[url], color: textGrey,),
-                          new Text(url, style: TextStyle(color: textGrey),),
+                          new Image.network(url['imageUrl'].toString(), width: 30.0,),
+                          new Text(url['name'].toString(), style: TextStyle(color: textGrey),),
                         ],
                       ));
                 }).toList()),

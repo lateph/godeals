@@ -274,6 +274,9 @@ class _HomePageState extends State<HomePage> {
     if(childs[index]['status'] == 'active'){
       return _buildOnBidding(context, index);
     }
+    else if(childs[index]['status'] == 'completed'){
+      return _buildComplete(context, index);
+    }
     else{
       return _buildCanceledOnBidding(context);
     }
@@ -574,7 +577,15 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-  Widget _buildComplete(BuildContext context) {
+  Widget _buildComplete(BuildContext context, int index) {
+    var value = childs[index];
+    String textAgo = timeago.format(DateTime.parse(value['checkInDate']), allowFromNow: true, locale: 'en');
+    Map<String, dynamic> lokasi = new Map<String, dynamic>.from(value['areaNames']);
+
+    Map<String, int> confirmed = new Map<String, int>.from(value['offerByStatus']['confirmed'] != null ? value['offerByStatus']['confirmed'] : {});
+    int totalConfirmed = 0;
+    confirmed.values.toList().forEach((num e){totalConfirmed += e;});
+
     return Container(
       margin: const EdgeInsets.only(
         top: 10.0,
@@ -582,136 +593,148 @@ class _HomePageState extends State<HomePage> {
         left: 10.0,
         bottom: 0.0,
       ),
-      padding: const EdgeInsets.only(top:10.0, bottom: 10.0, left: 10.0, right: 10.0),
-      decoration: new BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(5.0)
-      ),
-      child: new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                height: 80.0,
-                width: 80.0,
-                decoration: BoxDecoration(
-                    border: Border.all(color: warnaGolden, width: 2.0),
-                    borderRadius: BorderRadius.circular(8.0)
-                ),
-                child: IconButton(icon: new Icon(Icons.timer, color: warnaGolden,size: 65.0), padding: EdgeInsets.all(0.0), onPressed: () {
-
-                }),
+      child: Material(
+        borderRadius: BorderRadius.circular(5.0),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailOpportunityPage(todo: value),
               ),
-              new Padding(padding: EdgeInsets.only(left: 5.0)),
-              new Expanded(
-                child: new Column(
+            );
+//            Navigator.of(context).pushNamed(DetailOpportunityPage.routeName);
+          },
+          child: Container(
+            padding: const EdgeInsets.only(top:10.0, bottom: 10.0, left: 10.0, right: 10.0),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          child: Text('Completed', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
-                          decoration: BoxDecoration(
-                              color: warnaGolden,
-                              borderRadius: BorderRadius.circular(5.0)
+                    Container(
+                      height: 80.0,
+                      width: 80.0,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: warnaGolden, width: 2.0),
+                          borderRadius: BorderRadius.circular(8.0)
+                      ),
+                      child: IconButton(icon: new Icon(Icons.timer, color: warnaGolden,size: 65.0), padding: EdgeInsets.all(0.0), onPressed: () {
+
+                      }),
+                    ),
+                    new Padding(padding: EdgeInsets.only(left: 5.0)),
+                    new Expanded(
+                      child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                child: Text('Completed', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
+                                decoration: BoxDecoration(
+                                    color: warnaGolden,
+                                    borderRadius: BorderRadius.circular(5.0)
+                                ),
+                                padding: EdgeInsets.all(4.0),
+                              ),
+                              new Padding(padding: EdgeInsets.only(left: 5.0)),
+                              Icon(Icons.access_time, color: Colors.grey,),
+                              new Padding(padding: EdgeInsets.only(left: 5.0)),
+                              new Expanded(
+                                child: new Text(textAgo, style: TextStyle(color: Colors.grey),),
+                              )
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.start,
                           ),
-                          padding: EdgeInsets.all(4.0),
-                        ),
-                        new Padding(padding: EdgeInsets.only(left: 5.0)),
-                        Icon(Icons.access_time, color: Colors.grey,),
-                        new Padding(padding: EdgeInsets.only(left: 5.0)),
-                        new Expanded(
-                          child: new Text('4 hrs 15 mins Remaining', style: TextStyle(color: Colors.grey),),
-                        )
-                      ],
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
+                            children: <Widget>[
+                              Icon(Icons.location_on, color: Colors.grey),
+                              new Expanded(
+                                  child: Text(lokasi.values.toList().join(', '), style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: textGrey))
+                              )
+                            ],
+                          ),
+                          Text('Check in / Check out date', style: TextStyle(color: Colors.grey, fontSize: 12.0),),
+                          Text(new DateFormat('y MMMM dd').format(DateTime.parse(value['checkInDate'])) + ' / ' + new DateFormat('y MMMM dd').format(DateTime.parse(value['checkOutDate'])), style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),),
+                          Text(value['personPerRoom'].toString() + ' Person / Room ', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),)
+                        ],
+                      ),
                     ),
-                    Row(
-                      children: <Widget>[
-                        Icon(Icons.location_on, color: Colors.grey),
-                        new Expanded(
-                            child: Text('Makka, Madinah', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: textGrey))
-                        )
-                      ],
-                    ),
-                    Text('Check in / Check out date', style: TextStyle(color: Colors.grey, fontSize: 12.0),),
-                    Text('13 May 2018 / 18 May 2018', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),),
-                    Text('2 Person / Room', style: TextStyle(fontWeight: FontWeight.w600, color: textGrey),)
                   ],
                 ),
-              ),
-            ],
+                new Divider(color: Colors.grey),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Icon(Icons.hotel, color: textGrey, size: 30.0,),
+                    new Container(
+                      width: 1.0,
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    new Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('Total', style: TextStyle(color: Colors.grey),),
+                        Text(value['roomNeeded'].toString(), style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                    new Container(
+                      width: 1.0,
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    new Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('Confirmed', style: TextStyle(color: Colors.grey),),
+                        Text(totalConfirmed.toString(), style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
+                      ],
+                    ),
+                    new Container(
+                      width: 1.0,
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    Text((totalConfirmed / value['roomNeeded'] * 100).round().toString() + '%', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
+                  ],
+                ),
+                new Divider(color: Colors.grey),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    new Container(
+                      margin: EdgeInsets.only(left: 12.0, right: 20.0),
+                      child: Icon(Icons.monetization_on, color: textGrey, size: 30.0,),
+                    ),
+                    new Container(
+                      width: 1.0,
+                      margin: EdgeInsets.only(right: 20.0),
+                      height: 30.0,
+                      decoration: new BoxDecoration(
+                          color: Colors.grey
+                      ),
+                    ),
+                    Text(formatter.format(value['total']).toString()+' SAR ', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
+                  ],
+                )
+              ],
+            ),
           ),
-          new Divider(color: Colors.grey),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              Icon(Icons.hotel, color: textGrey, size: 30.0,),
-              new Container(
-                width: 1.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              new Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Total', style: TextStyle(color: Colors.grey),),
-                  Text('10', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
-                ],
-              ),
-              new Container(
-                width: 1.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              new Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Confirmed', style: TextStyle(color: Colors.grey),),
-                  Text('3', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600),)
-                ],
-              ),
-              new Container(
-                width: 1.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              Text('30%', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
-            ],
-          ),
-          new Divider(color: Colors.grey),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              new Container(
-                margin: EdgeInsets.only(left: 12.0, right: 20.0),
-                child: Icon(Icons.monetization_on, color: textGrey, size: 30.0,),
-              ),
-              new Container(
-                width: 1.0,
-                margin: EdgeInsets.only(right: 20.0),
-                height: 30.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey
-                ),
-              ),
-              Text('150.000 SAR', style: TextStyle(color: textGrey, fontWeight: FontWeight.w600, fontSize: 22.0))
-            ],
-          )
-        ],
+        ),
       ),
     );
   }
@@ -733,11 +756,33 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
+
+
+      List<dynamic> list = response.data['data'];
+      await Future.forEach(list, (e) async {
+        if(e['status'].toString() == 'completed'){
+          final Response details = await appBloc.app.api.get(
+            '/offer/list',
+            data: {
+              'opportunityId': e['id']
+            },
+            options: Options(
+              contentType: ContentType.JSON,
+              headers: {
+                'Authorization': appBloc.auth.deviceState.bearer,
+              },
+            ),
+          );
+          final List<dynamic> offers = details.data['data'];
+          e['total'] = offers.reduce((a, b) => a['totalPrice'] + b['totalPrice']);
+        }
+      });
+
       setState(() {
         if(url == ''){
           childs.clear();
         }
-        childs.addAll(response.data['data']);
+        childs.addAll(list);
         nextUrl = response.data['meta']['links']['next'];
         _dashboardAPINotifier.setLoading = false;
         _dashboardAPINotifier.notifyListeners();
